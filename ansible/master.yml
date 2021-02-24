@@ -1,0 +1,23 @@
+- hosts: master
+  become: yes
+  tasks:
+    - name: initialize the cluster
+      shell: kubeadm init --pod-network-cidr 10.253.0.0/16 --service-cidr 10.254.0.0/16 --control-plane-endpoint 192.168.1.202 --upload-certs >> cluster_initialized.txt
+      args:
+        chdir: $HOME
+        creates: cluster_initialized.txt
+
+    - name: create .kube directory
+      become: yes
+      become_user: k8s
+      file:
+        path: $HOME/.kube
+        state: directory
+        mode: 0755
+
+    - name: copy admin.conf to user's kube config
+      copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /home/k8s/.kube/config
+        remote_src: yes
+        owner: k8s
