@@ -1,0 +1,58 @@
+#This file is for Jellyfin, which is not running inside the Kubernetes cluster
+apiVersion: v1
+kind: Service
+metadata:
+  name: extern-jellyfin-service
+spec:
+  type: ExternalName
+  externalName: 192.168.1.47
+---
+#Regular Jellyfin ingress resource.
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: jellyfin-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"    
+spec:
+  tls:
+  - hosts:
+    - media.thedutchmc.nl
+    secretName: media-tls-secret
+  rules:
+  - host: media.thedutchmc.nl
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: extern-jellyfin-service
+          servicePort: 8096
+---
+#Websocket ingress resource for Jellyfin
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: jellyfin-ingress-websocket
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/configuration-snippet: |-
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
+spec:
+  tls:
+  - hosts:
+    - media.thedutchmc.nl
+    secretName: media-tls-secret
+  rules:
+  - host: media.thedutchmc.nl
+    http:
+      paths:
+      - path: /socket
+        backend:
+          serviceName: extern-jellyfin-service
+          servicePort: 8096

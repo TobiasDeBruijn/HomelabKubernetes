@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pykms-deployment
+  labels:
+    app: pykms
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: pykms
+  template:
+    metadata:
+      labels:
+        app: pykms
+    spec:
+      containers:
+      - name: pykms
+        image: pykmsorg/py-kms:latest
+        ports:
+        - containerPort: 1688
+        env:
+        - name: IP
+          value: "0.0.0.0"
+        - name: SQLLITE
+          value: "true"
+        - name: HWID
+          value: "RANDOM"
+        - name: LOGLEVEL
+          value: "ERROR"
+        volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Amsterdam
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pykms-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: pykms
+  ports:
+  - protocol: TCP
+    port: 1688
+    targetPort: 1688
