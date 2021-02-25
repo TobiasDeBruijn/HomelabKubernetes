@@ -34,7 +34,7 @@ metadata:
   labels:
     app: homer
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: homer
@@ -73,7 +73,7 @@ kind: Ingress
 metadata:
   name: homer-ingress
   annotations:
-    kubernets.io/ingress.class: "homer"
+    kubernets.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.io/whitelist-source-range: 85.144.63.138,192.168.1.0/24
 spec:
   tls:
