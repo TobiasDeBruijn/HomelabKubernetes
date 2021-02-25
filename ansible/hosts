@@ -1,0 +1,10 @@
+[master]
+K8s-M1 ansible_host=192.168.1.202 ansible_user=tobias
+
+[workers]
+K8s-W1 ansible_host=192.168.1.203 ansible_user=tobias
+K8s-W2 ansible_host=192.168.1.204 ansible_user=tobias
+K8s-W3 ansible_host=192.168.1.205 ansible_user=tobias
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3

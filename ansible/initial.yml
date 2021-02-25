@@ -1,0 +1,33 @@
+- hosts: all
+  become: yes
+  tasks:
+    - name: create 'k8s' user
+      user: name=k8s append=yes state=present createhome=yes shell=/bin/bash
+      
+    - name: allow 'k8s' passwordless sudo
+      lineinfile:
+        dest: /etc/sudoers
+        line: 'k8s ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+
+    - name: set up authorized keys for the ubuntu user
+      authorized_key: user=k8s key="{{item}}"
+      with_file:
+        - ~/.ssh/id_rsa.pub
+
+    #Vossie
+    - name: Create Vossie's account
+      user: name=vossie append=yes state=present createhome=yes shell=/bin/bash
+
+    - name: Add SSH keys to Vossie's account
+      authorized_key:
+        user: "vossie"
+        key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA1kNcI/1sFLDebdxFWifN1vsME9NfYVXUwfmzQuGYFp vos@home"
+
+    - name: Add Vossie's account to the sudoers file
+      lineinfile:
+        dest: /etc/sudoers
+        line: 'vossie ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+
+
