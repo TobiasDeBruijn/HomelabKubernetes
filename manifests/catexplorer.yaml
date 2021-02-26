@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: catexplorer-pv
+spec:
+  capacity:
+    storage: 5G
+  accessModes:
+  - ReadWriteMany
+  nfs:
+    path: /storage-pool/k8s/catexplorer
+    server: 192.168.1.8
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: catexplorer-pvc
+spec:
+  volumeName: catexplorer-pv
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 5G
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catexplorer-deployment
+  labels:
+    app: catexplorer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: catexplorer
+  template:
+    metadata:
+      labels:
+        app: catexplorer
+    spec:
+      containers:
+      - name: catexplorer
+        image: thedutchmc/catexplorer:latest
+        env:
+        - name: "BOT_TOKEN"
+          valueFrom:
+            secretKeyRef:
+              name: catexplorer-bot-secrets
+              key: token
+        volumeMounts:
+        - name: catexplorer-pics
+          mountPath: /data
+      volumes:
+       - name: catexplorer-pics
+         persistentVolumeClaim:
+           claimName: catexplorer-pvc
