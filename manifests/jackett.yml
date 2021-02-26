@@ -1,0 +1,113 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: jackett-iscsi-chap
+  namespace: default
+type: "kubernetes.io/iscsi-chap"
+data:
+  node.session.auth.username: "amFja2V0dAo="
+  node.session.auth.password: "UkRBQUdpNnZUSjNvUHhQbU0zN1kK"
+---
+#jacketts storage directory. iSCSI
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: jackett-config-pv
+spec:
+  capacity:
+    storage: 1G
+  accessModes:
+    - ReadWriteMany
+  iscsi:
+    targetPortal: 192.168.1.8:3260
+    iqn: 'iqn.2021-02.storage.thedutchmc.nl:jackett'
+    lun: 1
+    fsType: 'ext4'
+    readOnly: false
+    chapAuthDiscovery: true
+    chapAuthSession: true
+    secretRef:
+      name: jackett-iscsi-chap
+  persistentVolumeReclaimPolicy: Retain
+---
+#jacketts config directory
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jackett-config-pvc
+spec:
+  volumeName: jackett-config-pv
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1G
+---
+#Deployment. jackett container
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jackett-deployment
+  labels:
+    app: jackett
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jackett
+  template:
+    metadata:
+      labels:
+        app: jackett
+    spec:
+      containers:
+      - name: jackett
+        image: linuxserver/jackett
+        ports:
+        #Webinterface
+        - containerPort: 9117
+          name: webint
+        volumeMounts:
+        #jacketts config directory (iSCSI)
+        - name: jackett-config
+          mountPath: /config
+      volumes:
+      - name: jackett-config
+        persistentVolumeClaim:
+          claimName: jackett-config-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jackett-service
+spec:
+  selector:
+    app: jackett
+  ports:
+  #Webinterface
+  - protocol: TCP
+    name: webint
+    port: 9117
+    targetPort: 9117
+---
+#Ingress resource. Picked up by the NGINX ingress controller
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: jackett-ingress
+  annotations:
+    kubernets.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/whitelist-source-range: 85.144.63.138,192.168.1.0/24
+    nginx.ingress.kubernetes.io/proxy-body-size: 150m
+spec:
+  tls:
+  - hosts:
+    - jackett.k8s.thedutchmc.nl
+    secretName: k8s-tls-secret
+  rules:
+  - host: jackett.k8s.thedutchmc.nl
+    http:
+      paths:
+      - backend:
+          serviceName: jackett-service
+          servicePort: 9117

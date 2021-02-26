@@ -13,6 +13,7 @@ metadata:
   name: espocrm-ingress
   annotations:
     kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/proxy-body-size: 150m
 spec:
   tls:
   - hosts:

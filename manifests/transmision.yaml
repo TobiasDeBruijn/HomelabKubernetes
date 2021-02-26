@@ -1,0 +1,199 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: transmission-iscsi-chap
+  namespace: default
+type: "kubernetes.io/iscsi-chap"
+data:
+  node.session.auth.username: "dHJhbnNtaXNzaW9uCg=="
+  node.session.auth.password: "b1ZZNHJtRFR5N2c4ZllNZXlGb2IK"
+---
+#Transmission-home directory. iSCSI
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: transmission-home-config-pv
+spec:
+  persistentVolumeReclaimPolicy: Retain
+  capacity:
+    storage: 1G
+  accessModes:
+  - ReadWriteMany
+  iscsi:
+    targetPortal: 192.168.1.8:3260
+    iqn: 'iqn.2021-02.storage.thedutchmc.nl:transmission'
+    lun: 1
+    fsType: 'ext4'
+    readOnly: false
+    chapAuthDiscovery: true
+    chapAuthSession: true
+    secretRef:
+      name: transmission-iscsi-chap
+---
+#Transmissions download directory. NFS
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: transmission-download-pv
+spec:
+  capacity:
+    storage: 2000G
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: /storage-pool/VM/100/transmission/completed
+    server: 192.168.1.8
+  persistentVolumeReclaimPolicy: Retain
+---
+#Transmission-home config directory
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: transmission-home-config-pvc
+spec:
+  volumeName: transmission-home-config-pv
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1G
+---
+#Transmissions download directory
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: transmission-download-pvc
+spec:
+  volumeName: transmission-download-pv
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2000G
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transmission-deployment
+  labels:
+    app: transmission
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: transmission
+  template:
+    metadata:
+      labels:
+        app: transmission
+    spec:
+      containers:
+      - name: transmission
+        image: "haugene/transmission-openvpn:3.3"
+        ports:
+        #Webinterface
+        - containerPort: 9091
+          name: webit
+        securityContext:
+          capabilities:
+            add:
+            - NET_ADMIN
+        env:
+        - name: "OPENVPN_PROVIDER"
+          value: "PIA"
+        - name: "PIA_OPENVPN_CONFIG_BUNDLE"
+          value: "openvpn"
+        - name: "OPENVPN_USERNAME"
+          valueFrom:
+            secretKeyRef:
+              name: transmission-pia-credentials
+              key: username
+        - name: "OPENVPN_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              name: transmission-pia-credentials
+              key: password
+        - name: "OPENVPN_CONFIG"
+          value: "spain"
+        - name: "CREATE_TUN_DEVICE"
+          value: "true"
+        - name: "LOCAL_NETWORK"
+          value: "192.168.1.0/24,10.0.0.0/8"
+        - name: "WEBPROXY_ENABLED"
+          value: "false"
+        - name: "OPENVPN_OPTS"
+          value: "--inactive 3600 --ping 10 --ping-exit 60"
+        - name: "TRANSMISSION_WEB_UI"
+          value: "transmission-web-control"
+        - name: "TRANSMISSION_INCOMPLETE_DIR_ENABLED"
+          value: "false"
+        - name: "TRANSMISSION_IDLE_SEEDING_LIMIT"
+          value: "100000"
+        - name: "TRANSMISSION_IDLE_SEEDING_LIMIT_ENABLED"
+          value: "false"
+        - name: "TRANSMISSION_PEER_LIMIT_GLOBAL"
+          value: "500"
+        - name: "TRANSMISSION_DOWNLOAD_QUEUE_SIZE"
+          value: "100"
+        - name: "TRANSMISSION_SEED_QUEUE_SIZE"
+          value: "800"
+        - name: "TRANSMISSION_SEED_QUEUE_ENABLED"
+          value: "true"
+        - name: "TRANSMISSION_RATIO_LIMIT_ENABLED"
+          value: "true"
+        - name: "TRANSMISSION_RATIO_LIMIT"
+          value: "2"
+        - name: "TRANSMISSION_DHT_ENABLED"
+          value: "false"
+        - name: "TRANSMISSION_PEX_ENABLED"
+          value: "false"
+        - name: "TRANSMISSION_PEER_PORT"
+          value: "51414"
+        volumeMounts:
+        #Transmission-home data directory
+        - name: transmission-home-config-volume
+          mountPath: /data/transmission-home
+        #Download directory for transmission
+        - name: transmission-download-volume
+          mountPath: /data/completed
+      volumes:
+      - name: transmission-home-config-volume
+        persistentVolumeClaim:
+          claimName: transmission-home-config-pvc
+      - name: transmission-download-volume
+        persistentVolumeClaim:
+          claimName: transmission-download-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: transmission-service
+spec:
+  selector:
+    app: transmission
+  ports:
+  #Webinterface
+  - protocol: TCP
+    name: webint
+    port: 9091
+    targetPort: 9091
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: transmission-ingress
+  annotations:
+    kubernets.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/whitelist-source-range: 85.144.63.138,192.168.1.0/24
+spec:
+  tls:
+  - hosts:
+    - transmission.k8s.thedutchmc.nl
+    secretName: k8s-tls-secret
+  rules:
+  - host: transmission.k8s.thedutchmc.nl
+    http:
+      paths:
+      - backend:
+          serviceName: transmission-service
+          servicePort: 9091
