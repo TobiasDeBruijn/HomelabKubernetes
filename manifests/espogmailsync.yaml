@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: espogmailsync-deployment
+  labels:
+    app: espogmailsync
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: espogmailsync
+  template:
+    metadata:
+      labels:
+        app: espogmailsync
+    spec:
+      containers:
+      - name: espogmailsync-api
+        image: registry.thedutchmc.nl/espogmailsync-api:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: api-port
+        env:
+        - name: "DEBUG"
+          value: "true"
+        - name: "AUTH_API_TOKEN"
+          valueFrom:
+            secretKeyRef:
+              name: espogmailsync-api
+              key: auth-api-token
+        - name: "FRONTEND_HOST"
+          value: "https://intern.mrfriendly.nl"
+        - name: "AUTH_SERVER_HOST"
+          value: "https://api.intern.mrfriendly.nl"
+        - name: "ESPO_HOST"
+          value: "https://espocrm.intern.mrfriendly.nl"
+        - name: "ESPO_API_KEY"
+          valueFrom:
+            secretKeyRef:
+              name: espogmailsync-api
+              key: espo-api-key
+        - name: "ESPO_SECRET_KEY"
+          valueFrom:
+            secretKeyRef:
+              name: espogmailsync-api
+              key: espo-api-secret
+        - name: "MYSQL_HOST"
+          value: "192.168.1.206:3306"
+        - name: "MYSQL_DB"
+          value: "espogmailsync"
+        - name: "MYSQL_USERNAME"
+          valueFrom:
+            secretKeyRef:
+              name: espogmailsync-api
+              key: mysql-username
+        - name: "MYSQL_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              name: espogmailsync-api
+              key: mysql-password
+      # TODO Frontend container
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: espogmailsync-service
+spec:
+  selector:
+    app: espogmailsync
+  ports:
+  - protocol: TCP
+    name: api
+    port: 8080
+    targetPort: 8080
+  #TODO Frontend ports
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: espogmailsync-api-ingress
+spec:
+  tls:
+  - hosts:
+    - api.intern.mrfriendly.nl
+    secretName: api-intern-mrfriendly-nl-tls-secret
+  rules:
+  - host: api.intern.mrfriendly.nl
+    http:
+      paths:
+      - path: /espogmailsync
+        backend:
+          serviceName: espogmailsync-service
+          servicePort: 8080
+#TODO frontend ingress

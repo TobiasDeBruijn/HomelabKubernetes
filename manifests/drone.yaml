@@ -1,0 +1,209 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: drone-runner
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: default
+  name: drone-runner
+rules:
+- apiGroups:
+  - apps
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+  - delete
+- apiGroups:
+  - apps
+  - ""
+  resources:
+  - pods
+  - pods/log
+  - apps
+  - deployments
+  verbs:
+  - get
+  - create
+  - delete
+  - list
+  - watch
+  - update
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: drone-runner
+  namespace: default
+subjects:
+- kind: ServiceAccount
+  name: drone-runner
+  namespace: default
+roleRef:
+  kind: Role
+  name: drone-runner
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: drone-iscsi-chap
+  namespace: default
+type: "kubernetes.io/iscsi-chap"
+data:
+  node.session.auth.username: "ZHJvbmUK"
+  node.session.auth.password: "cFN2NzdDTjJvOE1XdmV1Rm1rQlYK"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: drone-config-pv
+spec:
+  capacity:
+    storage: 5G
+  accessModes:
+    - ReadWriteMany
+  iscsi:
+    targetPortal: 192.168.1.8:3260
+    iqn: 'iqn.2021-02.storage.thedutchmc.nl:drone'
+    lun: 1
+    fsType: 'ext4'
+    readOnly: false
+    chapAuthDiscovery: true
+    chapAuthSession: true
+    secretRef:
+      name: drone-iscsi-chap
+  persistentVolumeReclaimPolicy: Retain
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: drone-config-pvc
+spec:
+  volumeName: drone-config-pv
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 5G
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: drone-deployment
+  labels:
+    app: drone
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: drone
+  template:
+    metadata:
+      labels:
+        app: drone
+    spec:
+      serviceAccountName: drone-runner
+      containers:
+      #Drone Server
+      - name: drone
+        image: drone/drone:1.10.1
+        env:
+        - name: "DRONE_GITHUB_CLIENT_ID"
+          valueFrom:
+            secretKeyRef:
+              name: drone-secret
+              key: github-client-id
+        - name: "DRONE_GITHUB_CLIENT_SECRET"
+          valueFrom:
+            secretKeyRef:
+              name: drone-secret
+              key: github-client-secret
+        - name: "DRONE_RPC_SECRET"
+          valueFrom:
+            secretKeyRef:
+              name: drone-secret
+              key: rpc-secret
+        - name: "DRONE_SERVER_HOST"
+          value: "drone.k8s.thedutchmc.nl"
+        - name: "DRONE_SERVER_PROTO"
+          value: "https"
+        - name: "DRONE_TLS_CERT"
+          value: "/etc/certs/drone.k8s.thedutchmc.nl/tls.crt"
+        - name: "DRONE_TLS_KEY"
+          value: "/etc/certs/drone.k8s.thedutchmc.nl/tls.key"
+        - name: "DRONE_USER_CREATE"
+          value: "username:thedutchmc,admin:true"
+        - name: "DRONE_SERVICE_ACCOUNT_DEFAULT"
+          value: "drone-runner"
+        ports:
+        - containerPort: 443
+          name: webinterface
+        volumeMounts:
+        - name: ssl-keys
+          mountPath: /etc/certs/drone.k8s.thedutchmc.nl/
+          readOnly: true
+        - name: drone-config
+          mountPath: /data
+      #Drone Runner
+      - name: runner
+        image: drone/drone-runner-kube:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: "DRONE_SERVICE_ACCOUNT_DEFAULT"
+          value: "drone-runner"
+        - name: "DRONE_RPC_HOST"
+          value: "drone.k8s.thedutchmc.nl"
+        - name: "DRONE_RPC_PROTO"
+          value: "https"
+        - name: "DRONE_RPC_SECRET"
+          valueFrom:
+            secretKeyRef:
+              name: drone-secret
+              key: rpc-secret
+      volumes:
+      - name: ssl-keys
+        secret:
+          secretName: k8s-tls-secret 
+      - name: drone-config
+        persistentVolumeClaim:
+          claimName: drone-config-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: drone-service
+spec:
+  selector:
+    app: drone
+  ports:
+  - protocol: TCP
+    name: webinterface
+    port: 443
+    targetPort: 443
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: drone-ingress
+  annotations:
+    kubernets.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    nginx.ingress.kubernetes.io/proxy-body-size: 150m
+
+spec:
+  tls:
+  - hosts:
+    - drone.k8s.thedutchmc.nl
+    secretName: k8s-tls-secret
+  rules:
+  - host: drone.k8s.thedutchmc.nl
+    http:
+      paths:
+      - backend:
+          serviceName: drone-service
+          servicePort: 443
