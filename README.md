@@ -9,6 +9,6 @@ Currently I have:
 To learn, mostly
 
 ## TODO
-- Scale to 3 master nodes to get full HA
-- keepalived to make sure my router can always route to the K8s cluster
-- Moving all applications from current Docker and LXCs deployments into the cluster
+- [ ] Scale to 3 master nodes to get full HA
+- [ ] keepalived to make sure my router can always route to the K8s cluster
+- [ ] Moving all applications from current Docker and LXCs deployments into the cluster
