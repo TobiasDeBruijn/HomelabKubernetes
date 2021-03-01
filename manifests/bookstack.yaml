@@ -1,0 +1,123 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: bookstack-iscsi-chap
+  namespace: default
+type: "kubernetes.io/iscsi-chap"
+data:
+  node.session.auth.username: "Ym9va3N0YWNrCg=="
+  node.session.auth.password: "UU5Ga0ZBdXh0QzZCMkN2NDYyNU0K"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: bookstack-config-pv
+spec:
+  capacity:
+    storage: 25G
+  accessModes:
+    - ReadWriteMany
+  iscsi:
+    targetPortal: 192.168.1.8:3260
+    iqn: 'iqn.2021-03.storage.thedutchmc.nl:bookstack'
+    lun: 1
+    fsType: 'ext4'
+    readOnly: false
+    chapAuthDiscovery: true
+    chapAuthSession: true
+    secretRef:
+      name: bookstack-iscsi-chap
+  persistentVolumeReclaimPolicy: Retain
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: bookstack-config-pvc
+spec:
+  volumeName: bookstack-config-pv
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 25G
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookstack-deployment
+  labels:
+    app: bookstack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bookstack
+  template:
+    metadata:
+      labels:
+        app: bookstack
+    spec:
+      containers:
+      - name: bookstack
+        image: registry.thedutchmc.nl/bookstack:latest
+        env:
+        - name: "APP_URL"
+          value: "https://wiki.thedutchmc.nl"
+        - name: "DB_HOST"
+          value: "192.168.1.206"
+        - name: "DB_DATABASE"
+          value: "bookstack"
+        - name: "DB_USERNAME"
+          valueFrom:
+            secretKeyRef:
+              name: bookstack-secret
+              key: db-username
+        - name: "DB_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              name: bookstack-secret
+              key: db-password
+        volumeMounts:
+        - name: bookstack-config
+          mountPath: /var/www/bookstack
+        ports:
+        - name: web
+          containerPort: 80
+      volumes:
+      - name: bookstack-config
+        persistentVolumeClaim:
+          claimName: bookstack-config-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bookstack-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: bookstack
+  ports:
+  - protocol: TCP
+    name: web
+    port: 80
+    targetPort: 80
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: bookstack-ingress
+  annotations:
+    kubernets.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/proxy-body-size: 150m
+spec:
+  tls:
+  - hosts:
+    - wiki.thedutchmc.nl
+    secretName: wildcard-thedutchmc-nl-tls-secret
+  rules:
+  - host: wiki.thedutchmc.nl
+    http:
+      paths:
+      - backend:
+          serviceName: bookstack-service
+          servicePort: 80
