@@ -43,20 +43,12 @@ spec:
       containers:
       - name: espocrm
         image: registry.thedutchmc.nl/espocrm:latest
-        env:
-        - name: "ESPOCRM_SITE_URL"
-          value: "https://espocrm.intern.mrfriendly.nl"
         ports:
         - containerPort: 80
           name: web
         volumeMounts:
         - name: webdir
-          mountPath: /var/www/html
-      - name: espocrm-cron
-        image: registry.thedutchmc.nl/espocrm-cron:latest
-        volumeMounts:
-        - name: webdir
-          mountPath: /var/www/html
+          mountPath: /var/www/espocrm
       volumes:
       - name: webdir
         persistentVolumeClaim:
