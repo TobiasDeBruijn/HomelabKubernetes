@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: betterplayer-deployment
+  labels:
+    app: betterplayer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: betterplayer
+  template:
+    metadata:
+      labels:
+        app: betterplayer
+    spec:
+      containers:
+      - name: betterplayer
+        image: registry.thedutchmc.nl/betterplayer:debug
+        volumeMounts:
+        - name: config
+          mountPath: /app/config.yml
+          subPath: config.yml
+      volumes:
+      - name: config
+        configMap:
+          name: betterplayer-config

@@ -1,0 +1,107 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: netherlandsbot-core-config-pv
+spec:
+  capacity:
+    storage: 1G
+  accessModes:
+  - ReadWriteMany
+  nfs:
+    path: /storage-pool/k8s/netherlandsbot-core/config
+    server: 192.168.1.8
+  persistentVolumeReclaimPolicy: Retain
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: netherlandsbot-core-config-pvc
+spec:
+  volumeName: netherlandsbot-core-config-pv
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1G
+---
+apiVersion: v1
+kind: PersistentVolume  
+metadata:
+  name: netherlandsbot-core-moduleconfig-pv
+spec:
+  capacity:
+    storage: 1G
+  accessModes:
+  - ReadWriteMany
+  nfs:
+    path: /storage-pool/k8s/netherlandsbot-core/moduleconfig
+    server: 192.168.1.8
+  persistentVolumeReclaimPolicy: Retain
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: netherlandsbot-core-moduleconfig-pvc
+spec:
+  volumeName: netherlandsbot-core-moduleconfig-pv
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1G
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: netherlandsbot-core-deployment
+  labels:
+    app: netherlandsbot-core
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: netherlandsbot-core
+  template:
+    metadata:
+      labels:
+        app: netherlandsbot-core
+    spec:
+      containers:
+      - name: netherlandsbot-core
+        image: registry.thedutchmc.nl/netherlandsbot-core:latest
+        ports:
+        - name: tcp-module
+          containerPort: 5555
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        - name: moduleconfig
+          mountPath: /moduleconfig
+        env:
+        - name: "HOI_MODULE"
+          value: "YES"
+        - name: "DICK_MEASURING_CONTEST"
+          value: "YES"
+        - name: "TCP_MODULE"
+          value: "YES"
+      volumes:
+      - name: config
+        persistentVolumeClaim:
+          claimName: netherlandsbot-core-config-pvc
+      - name: moduleconfig
+        persistentVolumeClaim:
+          claimName: netherlandsbot-core-moduleconfig-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: netherlandsbot-core-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: netherlandsbot-core
+  ports:
+  - protocol: TCP
+    name: tcp-module
+    port: 5555
+    targetPort: 5555
