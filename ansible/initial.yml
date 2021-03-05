@@ -13,7 +13,7 @@
     - name: set up authorized keys for the ubuntu user
       authorized_key: user=k8s key="{{item}}"
       with_file:
-        - ~/.ssh/id_rsa.pub
+        - ~/.ssh/id_ed25519.pub
 
     #Vossie
     - name: Create Vossie's account
