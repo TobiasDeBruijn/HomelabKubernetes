@@ -1,33 +1,53 @@
 apiVersion: v1
+kind: Secret
+metadata:
+  name: espocrm-iscsi-chap
+  namespace: mrfriendly
+type: "kubernetes.io/iscsi-chap"
+data:
+  node.session.auth.username: "ZXNwb2NybQo="
+  node.session.auth.password: "M2ZSQjdYSEI1YkV6ckwK"
+---
+apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: espocrm-pv
+  namespace: mrfriendly
 spec:
   capacity:
-    storage: 10G
+    storage: 1G
   accessModes:
     - ReadWriteMany
-  nfs:
-    path: /storage-pool/k8s/espocrm
-    server: 192.168.1.8
+  iscsi:
+    targetPortal: 192.168.2.2:3260
+    iqn: 'iqn.2021-03.storage.thedutchmc.nl:espocrm'
+    lun: 1
+    fsType: 'ext4'
+    readOnly: false
+    chapAuthDiscovery: true
+    chapAuthSession: true
+    secretRef:
+      name: espocrm-iscsi-chap
   persistentVolumeReclaimPolicy: Retain
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: espocrm-pvc
+  namespace: mrfriendly
 spec:
   volumeName: espocrm-pv
   accessModes:
     - ReadWriteMany
   resources:
     requests:
-      storage: 10G
+      storage: 1G
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: espocrm-deployment
+  namespace: mrfriendly
   labels:
     app: espocrm
 spec:
@@ -42,6 +62,7 @@ spec:
     spec:
       containers:
       - name: espocrm
+        imagePullPolicy: Always
         image: registry.thedutchmc.nl/espocrm:latest
         ports:
         - containerPort: 80
@@ -58,6 +79,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: espocrm-service
+  namespace: mrfriendly
 spec:
   selector:
     app: espocrm
@@ -71,6 +93,7 @@ apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: espocrm-ingress
+  namespace: mrfriendly
   annotations:
     kubernets.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.io/proxy-body-size: 150m
@@ -78,7 +101,7 @@ spec:
   tls:
   - hosts:
     - espocrm.intern.mrfriendly.nl
-    secretName: intern-mrfriendly-tls-secret
+    secretName: mrfriendly-tls
   rules:
   - host: espocrm.intern.mrfriendly.nl
     http:

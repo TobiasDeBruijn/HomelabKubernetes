@@ -67,7 +67,7 @@ spec:
   accessModes:
     - ReadWriteMany
   iscsi:
-    targetPortal: 192.168.1.8:3260
+    targetPortal: 192.168.2.2:3260
     iqn: 'iqn.2021-02.storage.thedutchmc.nl:drone'
     lun: 1
     fsType: 'ext4'
@@ -168,7 +168,7 @@ spec:
       volumes:
       - name: ssl-keys
         secret:
-          secretName: k8s-tls-secret 
+          secretName: thedutchmc-tls
       - name: drone-config
         persistentVolumeClaim:
           claimName: drone-config-pvc
@@ -199,7 +199,7 @@ spec:
   tls:
   - hosts:
     - drone.k8s.thedutchmc.nl
-    secretName: k8s-tls-secret
+    secretName: thedutchmc-tls
   rules:
   - host: drone.k8s.thedutchmc.nl
     http:

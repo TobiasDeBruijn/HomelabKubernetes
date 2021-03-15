@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authserver-deployment
+  namespace: mrfriendly
+  labels:
+    app: authserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: authserver
+  template:
+    metadata:
+      labels:
+        app: authserver
+    spec:
+      containers:
+      - name: authserver
+        image: registry.thedutchmc.nl/authserver:latest
+        ports:
+        - name: web
+          containerPort: 80
+        env:
+        - name: "BIND_ADDRESS"
+          value: "0.0.0.0"
+        - name: "PORT"
+          value: "80"
+        - name: "GOOGLE_CLIENT_ID"
+          valueFrom:
+            secretKeyRef:
+              name: authserver
+              key: google_client_id
+        - name: "GOOGLE_CLIENT_SECRET"
+          valueFrom:
+            secretKeyRef:
+              name: authserver
+              key: google_client_secret
+        - name: "HOST"
+          value: "https://api.mrfriendly.nl/authentication"
+        - name: "MYSQL_HOST"
+          value: "192.168.1.206"
+        - name: "MYSQL_DATABASE"
+          value: "authserver"
+        - name: "MYSQL_USERNAME"
+          valueFrom:
+            secretKeyRef:
+              name: authserver
+              key: mysql_username
+        - name: "MYSQL_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              name: authserver
+              key: mysql_password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: authserver-service
+  namespace: mrfriendly
+spec:
+  selector:
+    app: authserver
+  ports:
+  - protocol: TCP
+    name: api
+    port: 80
+    targetPort: 80

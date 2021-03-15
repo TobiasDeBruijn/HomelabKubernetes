@@ -19,7 +19,7 @@ spec:
   accessModes:
     - ReadWriteMany
   iscsi:
-    targetPortal: 192.168.1.8:3260
+    targetPortal: 192.168.2.2:3260
     iqn: 'iqn.2021-02.storage.thedutchmc.nl:jackett'
     lun: 1
     fsType: 'ext4'
@@ -103,7 +103,7 @@ spec:
   tls:
   - hosts:
     - jackett.k8s.thedutchmc.nl
-    secretName: k8s-tls-secret
+    secretName: thedutchmc-tls
   rules:
   - host: jackett.k8s.thedutchmc.nl
     http:

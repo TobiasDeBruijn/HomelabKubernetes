@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: espogmailsync-deployment
+  namespace: mrfriendly
   labels:
     app: espogmailsync
 spec:
@@ -65,6 +66,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: espogmailsync-service
+  namespace: mrfriendly
 spec:
   selector:
     app: espogmailsync
@@ -79,11 +81,12 @@ apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: espogmailsync-api-ingress
+  namespace: mrfriendly
 spec:
   tls:
   - hosts:
     - api.intern.mrfriendly.nl
-    secretName: api-intern-mrfriendly-nl-tls-secret
+    secretName: mrfriendly-tls
   rules:
   - host: api.intern.mrfriendly.nl
     http:

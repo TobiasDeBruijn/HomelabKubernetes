@@ -20,7 +20,7 @@ spec:
   accessModes:
   - ReadWriteMany
   iscsi:
-    targetPortal: 192.168.1.8:3260
+    targetPortal: 192.168.2.2:3260
     iqn: 'iqn.2021-02.storage.thedutchmc.nl:transmission'
     lun: 1
     fsType: 'ext4'
@@ -41,8 +41,8 @@ spec:
   accessModes:
     - ReadWriteMany
   nfs:
-    path: /storage-pool/VM/100/transmission/completed
-    server: 192.168.1.8
+    path: /storage-pool/transmission
+    server: 192.168.2.3
   persistentVolumeReclaimPolicy: Retain
 ---
 #Transmission-home config directory
@@ -189,7 +189,7 @@ spec:
   tls:
   - hosts:
     - transmission.k8s.thedutchmc.nl
-    secretName: k8s-tls-secret
+    secretName: thedutchmc-tls
   rules:
   - host: transmission.k8s.thedutchmc.nl
     http:

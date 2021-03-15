@@ -5,7 +5,7 @@ metadata:
   name: extern-jellyfin-service
 spec:
   type: ExternalName
-  externalName: 192.168.1.47
+  externalName: 192.168.1.220
 ---
 #Regular Jellyfin ingress resource.
 apiVersion: networking.k8s.io/v1beta1
@@ -21,7 +21,7 @@ spec:
   tls:
   - hosts:
     - media.thedutchmc.nl
-    secretName: media-tls-secret
+    secretName: thedutchmc-tls
   rules:
   - host: media.thedutchmc.nl
     http:
@@ -47,7 +47,7 @@ spec:
   tls:
   - hosts:
     - media.thedutchmc.nl
-    secretName: media-tls-secret
+    secretName: thedutchmc-tls
   rules:
   - host: media.thedutchmc.nl
     http:

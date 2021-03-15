@@ -5,7 +5,7 @@ metadata:
   namespace: default
 type: "kubernetes.io/iscsi-chap"
 data:
-  node.session.auth.username: "cmFkYXJyCg=="
+  node.session.auth.username: "bGlkYXJyCg=="
   node.session.auth.password: "UFI2WGMyWHpzQjNISHk4clIycTkK"
 ---
 #lidarrs storage directory. iSCSI
@@ -19,7 +19,7 @@ spec:
   accessModes:
     - ReadWriteMany
   iscsi:
-    targetPortal: 192.168.1.8:3260
+    targetPortal: 192.168.2.2:3260
     iqn: 'iqn.2021-02.storage.thedutchmc.nl:lidarr'
     lun: 1
     fsType: 'ext4'
@@ -172,7 +172,7 @@ spec:
   tls:
   - hosts:
     - lidarr.k8s.thedutchmc.nl
-    secretName: k8s-tls-secret
+    secretName: thedutchmc-tls
   rules:
   - host: lidarr.k8s.thedutchmc.nl
     http:

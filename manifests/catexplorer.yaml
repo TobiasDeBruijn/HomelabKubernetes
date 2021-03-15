@@ -1,15 +1,33 @@
 apiVersion: v1
+kind: Secret
+metadata:
+  name: catexplorer-iscsi-chap
+  namespace: default
+type: "kubernetes.io/iscsi-chap"
+data:
+  node.session.auth.username: "Y2F0ZXhwbG9yZXIK"
+  node.session.auth.password: "cjg3Q2c2eW1lM0tUbUoK"
+---
+apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: catexplorer-pv
 spec:
   capacity:
-    storage: 5G
+    storage: 10G
   accessModes:
-  - ReadWriteMany
-  nfs:
-    path: /storage-pool/k8s/catexplorer
-    server: 192.168.1.8
+    - ReadWriteMany
+  iscsi:
+    targetPortal: 192.168.2.2:3260
+    iqn: 'iqn.2021-03.storage.thedutchmc.nl:catexplorer'
+    lun: 1
+    fsType: 'ext4'
+    readOnly: false
+    chapAuthDiscovery: true
+    chapAuthSession: true
+    secretRef:
+      name: catexplorer-iscsi-chap
+  persistentVolumeReclaimPolicy: Retain
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -21,7 +39,7 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: 5G
+      storage: 10G
 ---
 apiVersion: apps/v1
 kind: Deployment

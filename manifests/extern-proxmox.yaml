@@ -19,7 +19,7 @@ spec:
   tls:
   - hosts:
     - proxmox.k8s.thedutchmc.nl
-    secretName: k8s-tls-secret
+    secretName: thedutchmc-tls
   rules:
   - host: proxmox.k8s.thedutchmc.nl
     http:

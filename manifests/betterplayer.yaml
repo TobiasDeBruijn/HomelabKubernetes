@@ -16,12 +16,32 @@ spec:
     spec:
       containers:
       - name: betterplayer
-        image: registry.thedutchmc.nl/betterplayer:debug
-        volumeMounts:
-        - name: config
-          mountPath: /app/config.yml
-          subPath: config.yml
-      volumes:
-      - name: config
-        configMap:
-          name: betterplayer-config
+        imagePullPolicy: Always
+        image: registry.thedutchmc.nl/betterplayer:latest
+        env:
+        - name: "BOT_TOKEN"
+          valueFrom:
+            secretKeyRef:
+              name: betterplayer 
+              key: BOT_TOKEN
+        - name: "USE_GOOGLE_API"
+          value: "true"
+        - name: "GOOGLE_API_KEY"
+          valueFrom:
+            secretKeyRef:
+              name: betterplayer
+              key: GOOGLE_API_KEY
+        - name: "DB_HOST"
+          value: "192.168.1.206"
+        - name: "DB_NAME"
+          value: "betterplayer"
+        - name: "DB_USERNAME"
+          valueFrom:
+            secretKeyRef:
+              name: betterplayer
+              key: DB_USERNAME
+        - name: "DB_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              name: betterplayer
+              key: DB_PASSWORD

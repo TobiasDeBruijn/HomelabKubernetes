@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: ordersync-service
+  name: ordersync-frontend-service
   namespace: mrfriendly
 spec:
   type: ExternalName
@@ -10,7 +10,7 @@ spec:
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
-  name: api-mrfriendly-nl-ingress
+  name: intern-mrfriendly-nl-ingress
   namespace: mrfriendly
   annotations:
     kubernetes.io/ingress.class: "nginx"
@@ -19,17 +19,13 @@ metadata:
 spec:
   tls:
   - hosts:
-    - api.mrfriendly.nl
+    - intern.mrfriendly.nl
     secretName: mrfriendly-tls
   rules:
-  - host: api.mrfriendly.nl
+  - host: intern.mrfriendly.nl
     http:
       paths:
-      - path: /authentication(.*)$
-        backend:
-          serviceName: authserver-service
-          servicePort: 80
       - path: /ordersync(.*)$
         backend:
-          serviceName: ordersync-service
+          serviceName: ordersync-frontend-service
           servicePort: 80

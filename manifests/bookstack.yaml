@@ -18,7 +18,7 @@ spec:
   accessModes:
     - ReadWriteMany
   iscsi:
-    targetPortal: 192.168.1.8:3260
+    targetPortal: 192.168.2.2:3260
     iqn: 'iqn.2021-03.storage.thedutchmc.nl:bookstack'
     lun: 1
     fsType: 'ext4'
@@ -64,7 +64,7 @@ spec:
         - name: "APP_URL"
           value: "https://wiki.thedutchmc.nl"
         - name: "DB_HOST"
-          value: "192.168.1.206"
+          value: "192.168.1.222"
         - name: "DB_DATABASE"
           value: "bookstack"
         - name: "DB_USERNAME"
@@ -113,7 +113,7 @@ spec:
   tls:
   - hosts:
     - wiki.thedutchmc.nl
-    secretName: wildcard-thedutchmc-nl-tls-secret
+    secretName: thedutchmc-tls
   rules:
   - host: wiki.thedutchmc.nl
     http:

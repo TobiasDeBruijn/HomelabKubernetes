@@ -30,7 +30,7 @@ spec:
   tls:
   - hosts:
     - dashboard.k8s.thedutchmc.nl
-    secretName: k8s-tls-secret
+    secretName: thedutchmc-tls
   rules:
   - host: dashboard.k8s.thedutchmc.nl
     http:
