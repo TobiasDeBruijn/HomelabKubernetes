@@ -9,7 +9,7 @@ The Drone service requires some secrets, occasionally.
 `kubectl get secret [SECRET NAME] -o jsonpath='{.data.ca\.crt}' && echo`
 
 ## k8s_token
-`kubectl get secret [SECRET NAME] -o jsonpath='{.data.ca\.crt}' && echo`
+`kubectl get secret [SECRET NAME] -o jsonpath='{.data.token}' | base64 --decode && echo
 
 ## k8s_server
 ``kubectl config view -o jsonpath='{range .clusters[*]}{.name}{"\t"}{.cluster.server}{"\n"}{end}'``
