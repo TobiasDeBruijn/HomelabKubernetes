@@ -32,7 +32,7 @@ spec:
               name: betterplayer
               key: GOOGLE_API_KEY
         - name: "DB_HOST"
-          value: "192.168.1.206"
+          value: "192.168.1.222"
         - name: "DB_NAME"
           value: "betterplayer"
         - name: "DB_USERNAME"
