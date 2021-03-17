@@ -18,6 +18,6 @@ I currently run a 4-node Kubernetes cluster in my homelab
 To learn, mostly
 
 ## TODO
-- [ ] Scale to 3 master nodes to get full HA
-- [ ] keepalived to make sure my router can always route to the K8s cluster
-- [ ] Moving all applications from current Docker and LXCs deployments into the cluster
+- [X] Scale to 3 master nodes to get full HA
+- [X] keepalived to make sure my router can always route to the K8s cluster
+- [X] Moving all applications from current Docker and LXCs deployments into the cluster
