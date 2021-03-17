@@ -41,8 +41,8 @@ spec:
   accessModes:
     - ReadWriteMany
   nfs:
-    path: /storage-pool/VM/100/transmission/completed
-    server: 192.168.1.8
+    path: /storage-pool/transmission
+    server: 192.168.2.3
   persistentVolumeReclaimPolicy: Retain
 ---
 #Export Directory for radarr. NFS
@@ -57,7 +57,7 @@ spec:
     - ReadWriteMany
   nfs:
     path: /storage-pool/media/movies
-    server: 192.168.1.8
+    server: 192.168.2.3
   persistentVolumeReclaimPolicy: Retain
 ---
 #radarrs config directory

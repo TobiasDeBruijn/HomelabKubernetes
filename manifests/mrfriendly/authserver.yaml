@@ -39,7 +39,7 @@ spec:
         - name: "HOST"
           value: "https://api.mrfriendly.nl/authentication"
         - name: "MYSQL_HOST"
-          value: "192.168.1.206"
+          value: "192.168.1.222"
         - name: "MYSQL_DATABASE"
           value: "authserver"
         - name: "MYSQL_USERNAME"

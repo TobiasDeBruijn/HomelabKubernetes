@@ -1,51 +1,42 @@
 apiVersion: v1
+kind: Secret
+metadata:
+  name: netherlandsbot-core-iscsi-chap
+  namespace: default
+type: "kubernetes.io/iscsi-chap"
+data:
+  node.session.auth.username: "bmV0aGVybGFuZHNib3QK"
+  node.session.auth.password: "WkU3M240QndrWkhHU3UK"
+---
+apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: netherlandsbot-core-config-pv
+  name: netherlandsbot-core-pv
 spec:
   capacity:
     storage: 1G
   accessModes:
-  - ReadWriteMany
-  nfs:
-    path: /storage-pool/k8s/netherlandsbot-core/config
-    server: 192.168.1.8
+    - ReadWriteMany
+  iscsi:
+    targetPortal: 192.168.2.2:3260
+    iqn: 'iqn.2021-03.storage.thedutchmc.nl:netherlandsbot-core'
+    lun: 1
+    fsType: 'ext4'
+    readOnly: false
+    chapAuthDiscovery: true
+    chapAuthSession: true
+    secretRef:
+      name: netherlandsbot-core-iscsi-chap
   persistentVolumeReclaimPolicy: Retain
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: netherlandsbot-core-config-pvc
+  name: netherlandsbot-core-pvc
 spec:
-  volumeName: netherlandsbot-core-config-pv
+  volumeName: netherlandsbot-core-pv
   accessModes:
-  - ReadWriteMany
-  resources:
-    requests:
-      storage: 1G
----
-apiVersion: v1
-kind: PersistentVolume  
-metadata:
-  name: netherlandsbot-core-moduleconfig-pv
-spec:
-  capacity:
-    storage: 1G
-  accessModes:
-  - ReadWriteMany
-  nfs:
-    path: /storage-pool/k8s/netherlandsbot-core/moduleconfig
-    server: 192.168.1.8
-  persistentVolumeReclaimPolicy: Retain
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: netherlandsbot-core-moduleconfig-pvc
-spec:
-  volumeName: netherlandsbot-core-moduleconfig-pv
-  accessModes:
-  - ReadWriteMany
+    - ReadWriteMany
   resources:
     requests:
       storage: 1G
@@ -74,9 +65,7 @@ spec:
           containerPort: 5555
         volumeMounts:
         - name: config
-          mountPath: /config
-        - name: moduleconfig
-          mountPath: /moduleconfig
+          mountPath: /
         env:
         - name: "HOI_MODULE"
           value: "YES"
@@ -87,10 +76,7 @@ spec:
       volumes:
       - name: config
         persistentVolumeClaim:
-          claimName: netherlandsbot-core-config-pvc
-      - name: moduleconfig
-        persistentVolumeClaim:
-          claimName: netherlandsbot-core-moduleconfig-pvc
+          claimName: netherlandsbot-core-pvc
 ---
 apiVersion: v1
 kind: Service

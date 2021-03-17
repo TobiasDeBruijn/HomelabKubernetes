@@ -29,7 +29,7 @@ spec:
           valueFrom:
             secretKeyRef:
               name: espogmailsync-api
-              key: auth-api-token
+              key: auth_api_token
         - name: "FRONTEND_HOST"
           value: "https://intern.mrfriendly.nl"
         - name: "AUTH_SERVER_HOST"
@@ -40,26 +40,26 @@ spec:
           valueFrom:
             secretKeyRef:
               name: espogmailsync-api
-              key: espo-api-key
+              key: espo_api_key
         - name: "ESPO_SECRET_KEY"
           valueFrom:
             secretKeyRef:
               name: espogmailsync-api
-              key: espo-api-secret
+              key: espo_api_secret
         - name: "MYSQL_HOST"
-          value: "192.168.1.206:3306"
+          value: "192.168.1.222:3306"
         - name: "MYSQL_DB"
           value: "espogmailsync"
         - name: "MYSQL_USERNAME"
           valueFrom:
             secretKeyRef:
               name: espogmailsync-api
-              key: mysql-username
+              key: mysql_username
         - name: "MYSQL_PASSWORD"
           valueFrom:
             secretKeyRef:
               name: espogmailsync-api
-              key: mysql-password
+              key: mysql_password
       # TODO Frontend container
 ---
 apiVersion: v1

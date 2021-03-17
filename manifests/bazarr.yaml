@@ -42,7 +42,7 @@ spec:
     - ReadWriteMany
   nfs:
     path: /storage-pool/media/movies
-    server: 192.168.1.8
+    server: 192.168.2.3
   persistentVolumeReclaimPolicy: Retain
 ---
 #TVShows directory, NFS
@@ -57,7 +57,7 @@ spec:
     - ReadWriteMany
   nfs:
     path: /storage-pool/media/tvshows
-    server: 192.168.1.8
+    server: 192.168.2.3
   persistentVolumeReclaimPolicy: Retain
 ---
 #bazarrs config directory
