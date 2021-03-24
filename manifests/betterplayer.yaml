@@ -45,3 +45,8 @@ spec:
             secretKeyRef:
               name: betterplayer
               key: DB_PASSWORD
+        - name: "KSOFT_API_TOKEN"
+          valueFrom:
+            secretKeyRef:
+              name: betterplayer
+              key: KSOFT_API_TOKEN
