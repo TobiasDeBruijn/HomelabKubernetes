@@ -66,3 +66,24 @@ spec:
     name: api
     port: 80
     targetPort: 80
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: mrfriendly-auth-api
+  namespace: mrfriendly
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+
+spec:
+  tls:
+  - hosts:
+    - auth.api.mrfriendly.nl
+    secretName: mrfriendly-tls
+  rules:
+  - host: auth.api.mrfriendly.nl
+    http:
+      paths:
+      - backend:
+          serviceName: authserver-service
+          servicePort: 80

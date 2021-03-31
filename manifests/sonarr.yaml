@@ -118,7 +118,7 @@ spec:
     spec:
       containers:
       - name: sonarr
-        image: 'linuxserver/sonarr:preview'
+        image: 'linuxserver/sonarr:latest'
         ports:
         #Webinterface
         - containerPort: 8989
