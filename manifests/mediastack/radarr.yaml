@@ -1,43 +1,58 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: bazarr-iscsi-chap
+  name: radarr-iscsi-chap
   namespace: default
 type: "kubernetes.io/iscsi-chap"
 data:
-  node.session.auth.username: "YmF6YXJyCg=="
-  node.session.auth.password: "N1RpQTlkcThvWVZpUW5KRVN2YnMK"
+  node.session.auth.username: "cmFkYXJyCg=="
+  node.session.auth.password: "bnk5S2RWVFJyNlRZYkFhTjRDNjMK"
 ---
-#bazarrs storage directory. iSCSI
+#radarrs storage directory. iSCSI
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: bazarr-config-pv
+  name: radarr-config-pv
 spec:
   capacity:
     storage: 1G
   accessModes:
     - ReadWriteMany
   iscsi:
-    targetPortal: 192.168.2.2:3260
-    iqn: 'iqn.2021-02.storage.thedutchmc.nl:bazarr'
+    targetPortal: 192.168.2.4:3260
+    iqn: 'iqn.2021-02.storage.thedutchmc.nl:radarr'
     lun: 1
     fsType: 'ext4'
     readOnly: false
     chapAuthDiscovery: true
     chapAuthSession: true
     secretRef:
-      name: bazarr-iscsi-chap
+      name: radarr-iscsi-chap
   persistentVolumeReclaimPolicy: Retain
 ---
-#Movie directory. NFS
+#Transmissions download directory. NFS
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: movie-bazarr-storage-pv
+  name: transmission-radarr-storage-pv
 spec:
   capacity:
     storage: 2000G
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: /storage-pool/transmission
+    server: 192.168.2.3
+  persistentVolumeReclaimPolicy: Retain
+---
+#Export Directory for radarr. NFS
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: movie-radarr-storage-pv
+spec:
+  capacity:
+    storage: 10000G
   accessModes:
     - ReadWriteMany
   nfs:
@@ -45,28 +60,13 @@ spec:
     server: 192.168.2.3
   persistentVolumeReclaimPolicy: Retain
 ---
-#TVShows directory, NFS
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: tvshow-bazarr-storage-pv
-spec:
-  capacity:
-    storage: 10000G
-  accessModes:
-    - ReadWriteMany
-  nfs:
-    path: /storage-pool/media/tvshows
-    server: 192.168.2.3
-  persistentVolumeReclaimPolicy: Retain
----
-#bazarrs config directory
+#radarrs config directory
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: bazarr-config-pvc
+  name: radarr-config-pvc
 spec:
-  volumeName: bazarr-config-pv
+  volumeName: radarr-config-pv
   accessModes:
     - ReadWriteMany
   resources:
@@ -77,92 +77,92 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: movie-bazarr-storage-pvc
+  name: transmission-radarr-storage-pvc
 spec:
-  volumeName: movie-bazarr-storage-pv
+  volumeName: transmission-radarr-storage-pv
   accessModes:
     - ReadWriteMany
   resources:
     requests:
       storage: 2000G
 ---
-#bazarrs export directory for TV Shows
+#radarrs export directory for TV Shows
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: tvshow-bazarr-storage-pvc
+  name: movie-radarr-storage-pvc
 spec:
-  volumeName: tvshow-bazarr-storage-pv
+  volumeName: movie-radarr-storage-pv
   accessModes:
     - ReadWriteMany
   resources:
     requests:
       storage: 10000G
 ---
-#Deployment. bazarr container
+#Deployment. radarr container
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: bazarr-deployment
+  name: radarr-deployment
   labels:
-    app: bazarr
+    app: radarr
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: bazarr
+      app: radarr
   template:
     metadata:
       labels:
-        app: bazarr
+        app: radarr
     spec:
       containers:
-      - name: bazarr
-        image: linuxserver/bazarr
+      - name: radarr
+        image: linuxserver/radarr
         ports:
         #Webinterface
-        - containerPort: 6767
+        - containerPort: 7878
           name: webint
         volumeMounts:
-        #bazarrs config directory (iSCSI)
-        - name: bazarr-config
+        #radarrs config directory (iSCSI)
+        - name: radarr-config
           mountPath: /config
-        #Movie directory
+        #Transmission download directory
+        - name: transmission-storage
+          mountPath: /data/completed/
+        #Final resting place for the downloaded media
         - name: movie-storage
           mountPath: /movies
-        #TVshow directory
-        - name: tvshow-storage
-          mountPath: /tv
       volumes:
-      - name: bazarr-config
+      - name: radarr-config
         persistentVolumeClaim:
-          claimName: bazarr-config-pvc
+          claimName: radarr-config-pvc
+      - name: transmission-storage
+        persistentVolumeClaim:
+          claimName: transmission-radarr-storage-pvc
       - name: movie-storage
-        persistentVolumeClaim:
-          claimName: movie-bazarr-storage-pvc
-      - name: tvshow-storage
         persistentVolumeClaim: 
-          claimName: tvshow-bazarr-storage-pvc
+          claimName: movie-radarr-storage-pvc
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: bazarr-service
+  name: radarr-service
 spec:
   selector:
-    app: bazarr
+    app: radarr
   ports:
   #Webinterface
   - protocol: TCP
     name: webint
-    port: 6767
-    targetPort: 6767
+    port: 7878
+    targetPort: 7878
 ---
 #Ingress resource. Picked up by the NGINX ingress controller
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
-  name: bazarr-ingress
+  name: radarr-ingress
   annotations:
     kubernets.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.io/whitelist-source-range: 85.144.63.138,192.168.1.0/24
@@ -171,12 +171,12 @@ metadata:
 spec:
   tls:
   - hosts:
-    - bazarr.k8s.thedutchmc.nl
+    - radarr.k8s.thedutchmc.nl
     secretName: thedutchmc-tls
   rules:
-  - host: bazarr.k8s.thedutchmc.nl
+  - host: radarr.k8s.thedutchmc.nl
     http:
       paths:
       - backend:
-          serviceName: bazarr-service
-          servicePort: 6767
+          serviceName: radarr-service
+          servicePort: 7878

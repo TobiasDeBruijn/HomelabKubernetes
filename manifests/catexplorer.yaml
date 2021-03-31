@@ -18,7 +18,7 @@ spec:
   accessModes:
     - ReadWriteMany
   iscsi:
-    targetPortal: 192.168.2.2:3260
+    targetPortal: 192.168.2.4:3260
     iqn: 'iqn.2021-03.storage.thedutchmc.nl:catexplorer'
     lun: 1
     fsType: 'ext4'
@@ -64,7 +64,7 @@ spec:
         - name: "BOT_TOKEN"
           valueFrom:
             secretKeyRef:
-              name: catexplorer-bot-secrets
+              name: catexplorer
               key: token
         volumeMounts:
         - name: catexplorer-pics

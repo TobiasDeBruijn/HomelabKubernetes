@@ -20,7 +20,7 @@ spec:
   accessModes:
   - ReadWriteMany
   iscsi:
-    targetPortal: 192.168.2.2:3260
+    targetPortal: 192.168.2.4:3260
     iqn: 'iqn.2021-02.storage.thedutchmc.nl:transmission'
     lun: 1
     fsType: 'ext4'
@@ -106,13 +106,13 @@ spec:
         - name: "OPENVPN_USERNAME"
           valueFrom:
             secretKeyRef:
-              name: transmission-pia-credentials
-              key: username
+              name: transmission
+              key: pia-username
         - name: "OPENVPN_PASSWORD"
           valueFrom:
             secretKeyRef:
-              name: transmission-pia-credentials
-              key: password
+              name: transmission
+              key: pia-password
         - name: "OPENVPN_CONFIG"
           value: "spain"
         - name: "CREATE_TUN_DEVICE"

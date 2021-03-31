@@ -1,12 +1,12 @@
 [master]
-K8s-M1 ansible_host=192.168.1.240 ansible_user=tobias
-K8s-M2 ansible_host=192.168.1.241 ansible_user=tobias
-K8s-M3 ansible_host=192.168.1.242 ansible_user=tobias
+k8s-m1 ansible_host=192.168.1.230 ansible_user=tobias
+k8s-m2 ansible_host=192.168.1.231 ansible_user=tobias
+k8s-m3 ansible_host=192.168.1.232 ansible_user=tobias
 
 [workers]
-K8s-W1 ansible_host=192.168.1.243 ansible_user=tobias
-K8s-W2 ansible_host=192.168.1.244 ansible_user=tobias
-K8s-W3 ansible_host=192.168.1.245 ansible_user=tobias
+k8s-w1 ansible_host=192.168.1.233 ansible_user=tobias
+k8s-w2 ansible_host=192.168.1.234 ansible_user=tobias
+k8s-w3 ansible_host=192.168.1.235 ansible_user=tobias
 
 [all:vars]
 ansible_python_interpreter=/usr/bin/python3

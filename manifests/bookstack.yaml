@@ -18,7 +18,7 @@ spec:
   accessModes:
     - ReadWriteMany
   iscsi:
-    targetPortal: 192.168.2.2:3260
+    targetPortal: 192.168.2.4:3260
     iqn: 'iqn.2021-03.storage.thedutchmc.nl:bookstack'
     lun: 1
     fsType: 'ext4'
@@ -70,12 +70,12 @@ spec:
         - name: "DB_USERNAME"
           valueFrom:
             secretKeyRef:
-              name: bookstack-secret
+              name: bookstack
               key: db-username
         - name: "DB_PASSWORD"
           valueFrom:
             secretKeyRef:
-              name: bookstack-secret
+              name: bookstack
               key: db-password
         volumeMounts:
         - name: bookstack-config
