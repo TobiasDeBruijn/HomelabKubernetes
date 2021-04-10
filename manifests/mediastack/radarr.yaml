@@ -159,7 +159,7 @@ spec:
     targetPort: 7878
 ---
 #Ingress resource. Picked up by the NGINX ingress controller
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: radarr-ingress
@@ -167,7 +167,6 @@ metadata:
     kubernets.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.io/whitelist-source-range: 85.144.63.138,192.168.1.0/24
     nginx.ingress.kubernetes.io/proxy-body-size: 150m
-
 spec:
   tls:
   - hosts:
@@ -177,6 +176,10 @@ spec:
   - host: radarr.k8s.thedutchmc.nl
     http:
       paths:
-      - backend:
-          serviceName: radarr-service
-          servicePort: 7878
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: radarr-service
+            port:
+              number: 7878

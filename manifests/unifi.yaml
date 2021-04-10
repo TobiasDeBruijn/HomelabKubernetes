@@ -147,7 +147,7 @@ spec:
   #  port: 10001
   #  targetPort: 10001
 ---
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: unifi-ingress
@@ -164,6 +164,10 @@ spec:
   - host: unifi.k8s.thedutchmc.nl
     http:
       paths:
-      - backend:
-          serviceName: unifi-tcp-service
-          servicePort: 8443
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: unifi-tcp-service
+            port:
+              number: 8443

@@ -159,7 +159,7 @@ spec:
     targetPort: 8989
 ---
 #Ingress resource. Picked up by the NGINX ingress controller
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: sonarr-ingress
@@ -177,6 +177,10 @@ spec:
   - host: sonarr.k8s.thedutchmc.nl
     http:
       paths:
-      - backend:
-          serviceName: sonarr-service
-          servicePort: 8989
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: sonarr-service
+            port:
+              number: 8989
