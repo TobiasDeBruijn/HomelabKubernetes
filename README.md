@@ -1,9 +1,9 @@
 # Homelab Kubernetes
-I currently run a 4-node Kubernetes cluster in my homelab
+I currently run a 10-node Kubernetes cluster in my homelab
 
 ### Cluster layout
-- 1 master node
-- 3 worker nodes
+- 4 master nodes
+- 6 worker nodes
 
 ### Storage layout
 - iSCSI for configuration, or when I need things to be fast (e.g Sonarr configuration)

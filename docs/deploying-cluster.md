@@ -5,8 +5,12 @@
 ### Run ansible playbooks:
 1. initial.yml
 2. kube-dependencies.yml
-3. master.yml
-4. workers.yml
+
+
+### Create the cluster
+1. One one of your master nodes: ``kubeadm init --pod-network-cidr 10.253.0.0/16 --service-cidr 10.254.0.0/16 --control-plane-endpoint 192.168.1.254 --apiserver-advertise-address 192.168.1.254 --upload-certs``
+>Note: Replace the IPs with your own. In my case 192.168.1.254 is a virtual IP, assigned to nodes with keepalived
+2. Join your masters and workers to the cluster with the provided commands by kubeadm.
 
 ### Install & Configure Calico
 >See: https://docs.projectcalico.org/getting-started/kubernetes/quickstart
