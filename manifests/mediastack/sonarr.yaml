@@ -120,17 +120,13 @@ spec:
       - name: sonarr
         image: 'linuxserver/sonarr:latest'
         ports:
-        #Webinterface
         - containerPort: 8989
           name: webint
         volumeMounts:
-        #Sonarrs config directory (iSCSI)
         - name: sonarr-config
           mountPath: /config
-        #Transmission download directory
         - name: transmission-storage
           mountPath: /data/completed/
-        #Final resting place for the downloaded media
         - name: tvshow-storage
           mountPath: /tv
       volumes:

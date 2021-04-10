@@ -149,6 +149,18 @@ spec:
           value: "false"
         - name: "TRANSMISSION_PEER_PORT"
           value: "51414"
+        - name: "TRANSMISSION_RPC_AUTHENTICATION_REQUIRED"
+          value: "TRUE"
+        - name: "TRANSMISSION_RPC_USERNAME"
+          valueFrom:
+            secretKeyRef:
+              name: transmission
+              key: username
+        - name: "TRANSMISSION_RPC_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              name: transmission
+              key: password
         volumeMounts:
         #Transmission-home data directory
         - name: transmission-home-config-volume
