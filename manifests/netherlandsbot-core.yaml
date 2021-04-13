@@ -1,45 +1,16 @@
 apiVersion: v1
-kind: Secret
+kind: ConfigMap
 metadata:
-  name: netherlandsbot-core-iscsi-chap
-  namespace: default
-type: "kubernetes.io/iscsi-chap"
+  name: netherlandsbot-core-config
 data:
-  node.session.auth.username: "bmV0aGVybGFuZHNib3QK"
-  node.session.auth.password: "WkU3M240QndrWkhHU3UK"
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: netherlandsbot-core-pv
-spec:
-  capacity:
-    storage: 1G
-  accessModes:
-    - ReadWriteMany
-  iscsi:
-    targetPortal: 192.168.2.4:3260
-    iqn: 'iqn.2021-03.storage.thedutchmc.nl:netherlandsbot-core'
-    lun: 1
-    fsType: 'ext4'
-    readOnly: false
-    chapAuthDiscovery: true
-    chapAuthSession: true
-    secretRef:
-      name: netherlandsbot-core-iscsi-chap
-  persistentVolumeReclaimPolicy: Retain
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: netherlandsbot-core-pvc
-spec:
-  volumeName: netherlandsbot-core-pv
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 1G
+  hoi-module: |
+    channelId: 811307775396413481
+    notHoiMessages:
+    - "Moet jij eens goed luisteren stuk stront dat je bent. Wij staan hier alleen 'Hoi' toe!"
+    - "Oi vieze tering lijer. Kun je niet lezen ofzo? Alleen 'Hoi' hier."
+  tcp-module: |
+    port: 5555
+    healthCheckInterval: 60
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -65,18 +36,31 @@ spec:
           containerPort: 5555
         volumeMounts:
         - name: config
-          mountPath: /
+          mountPath: /config
+        - name: module-config
+          mountPath: /moduleconfig/
         env:
         - name: "HOI_MODULE"
           value: "YES"
         - name: "DICK_MEASURING_CONTEST"
           value: "YES"
         - name: "TCP_MODULE"
-          value: "YES"
+          value: "NO"
       volumes:
       - name: config
-        persistentVolumeClaim:
-          claimName: netherlandsbot-core-pvc
+        secret:
+          secretName: netherlandsbot-core
+          items:
+          - key: config
+            path: config.yml
+      - name: module-config
+        configMap:
+          name: netherlandsbot-core-config
+          items:
+          - key: tcp-module
+            path: TCPModule.yml
+          - key: hoi-module
+            path: HoiModule.yml  
 ---
 apiVersion: v1
 kind: Service
