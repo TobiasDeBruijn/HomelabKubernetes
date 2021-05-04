@@ -1,151 +1,10 @@
 apiVersion: v1
-kind: Secret
-metadata:
-  name: unifi-iscsi-chap
-  namespace: default
-type: "kubernetes.io/iscsi-chap"
-data:
-  node.session.auth.username: "dW5pZmkK"
-  node.session.auth.password: "dnRVOVEyYnA0dzdTbVMK"
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: unifi-pv
-spec:
-  capacity:
-    storage: 2G
-  accessModes:
-    - ReadWriteMany
-  iscsi:
-    targetPortal: 192.168.2.4:3260
-    iqn: 'iqn.2021-03.storage.thedutchmc.nl:unifi'
-    lun: 1
-    fsType: 'ext4'
-    readOnly: false
-    chapAuthDiscovery: true
-    chapAuthSession: true
-    secretRef:
-      name: unifi-iscsi-chap
-  persistentVolumeReclaimPolicy: Retain
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: unifi-pvc
-spec:
-  volumeName: unifi-pv
-  accessModes:
-  - ReadWriteMany
-  resources:
-    requests:
-      storage: 2G
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: unifi-deployment
-  labels:
-    app: unifi
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: unifi
-  template:
-    metadata:
-      labels:
-        app: unifi
-    spec:
-      containers:
-      - name: unifi
-        image: linuxserver/unifi-controller:latest
-        ports:
-        # Device/Controller communication
-        - containerPort: 8080
-          name: device-comm
-        # STUN
-        - containerPort: 3478
-          name: stun
-        # Webinterface
-        - containerPort: 8443
-          name: webint
-        # Device Discovery
-        - containerPort: 10001
-          name: device-disc
-        volumeMounts:
-        - name: unifi-storage
-          mountPath: /config
-      volumes:
-      - name: unifi-storage
-        persistentVolumeClaim:
-          claimName: unifi-pvc
----
-apiVersion: v1
 kind: Service
 metadata:
-  name: unifi-udp-service
-  annotations:
-    metallb.universe.tf/allow-shared-ip: unifi
+  name: unifi
 spec:
-  type: LoadBalancer
-  loadBalancerIP: 10.10.10.120
-  selector:
-    app: unifi
-  ports:
-  # Device communication
-  #- protocol: TCP
-  #  name: device-comm
-  #  port: 8080
-  #  targetPort: 8080
-  # STUN
-  - protocol: UDP
-    name: stun
-    port: 3478
-    targetPort: 3478
-  # Webinterface
-  #- protocol: TCP
-  #  name: webint
-  #  port: 8443
-  #  targetPort: 8443
-  # Device Discovery
-  - protocol: UDP
-    name: device-disc
-    port: 10001
-    targetPort: 10001
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: unifi-tcp-service
-  annotations:
-    metallb.universe.tf/allow-shared-ip: unifi
-spec:
-  type: LoadBalancer
-  loadBalancerIP: 10.10.10.120
-  selector:
-    app: unifi
-  ports:
-  # Device communication
-  - protocol: TCP
-    name: device-comm
-    port: 8080
-    targetPort: 8080
-  # STUN
-  #- protocol: UDP
-  #  name: stun
-  #  port: 3478
-  #  targetPort: 3478
-  # Webinterface
-  - protocol: TCP
-    name: webint
-    port: 8443
-    targetPort: 8443
-  # Device Discovery
-  #- protocol: UDP
-  #  name: device-disc
-  #  port: 10001
-  #  targetPort: 10001
+  type: ExternalName
+  externalName: unifi.labs.thedutchmc.nl
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -168,6 +27,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: unifi-tcp-service
+            name: unifi
             port:
               number: 8443
