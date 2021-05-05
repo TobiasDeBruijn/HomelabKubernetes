@@ -60,3 +60,27 @@ spec:
             name: dashboard
             port: 
               number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dashboard-plain-url
+  namespace: mrfriendly
+  annotations:
+    kubernets.io/ingress.class: "nginx"
+spec:
+  tls:
+  - hosts:
+    - dashboard.intern.mrfriendly.nl
+    secretName: mrfriendly-tls
+  rules:
+  - host: intern.mrfriendly.nl
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: dashboard
+            port:
+              number: 80
