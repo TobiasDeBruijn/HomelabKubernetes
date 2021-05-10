@@ -12,7 +12,7 @@ data:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: lidarr-config-pv
+  name: lidarr-config
 spec:
   capacity:
     storage: 1G
@@ -20,7 +20,7 @@ spec:
     - ReadWriteMany
   iscsi:
     targetPortal: 192.168.2.4:3260
-    iqn: 'iqn.2021-02.storage.thedutchmc.nl:lidarr'
+    iqn: 'iqn.2021-05.intern.array21.dev:lidarr'
     lun: 1
     fsType: 'ext4'
     readOnly: false
@@ -34,7 +34,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: transmission-lidarr-storage-pv
+  name: transmission-lidarr-storage
 spec:
   capacity:
     storage: 2000G
@@ -42,14 +42,14 @@ spec:
     - ReadWriteMany
   nfs:
     path: /storage-pool/transmission
-    server: 192.168.2.3
+    server: storage-hdd.intern.array21.dev
   persistentVolumeReclaimPolicy: Retain
 ---
 #Export Directory for lidarr. NFS
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: music-lidarr-storage-pv
+  name: music-lidarr-storage
 spec:
   capacity:
     storage: 10000G
@@ -64,9 +64,9 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: lidarr-config-pvc
+  name: lidarr-config
 spec:
-  volumeName: lidarr-config-pv
+  volumeName: lidarr-config
   accessModes:
     - ReadWriteMany
   resources:
@@ -77,9 +77,9 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: transmission-lidarr-storage-pvc
+  name: transmission-lidarr-storage
 spec:
-  volumeName: transmission-lidarr-storage-pv
+  volumeName: transmission-lidarr-storage
   accessModes:
     - ReadWriteMany
   resources:
@@ -90,9 +90,9 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: music-lidarr-storage-pvc
+  name: music-lidarr-storage
 spec:
-  volumeName: music-lidarr-storage-pv
+  volumeName: music-lidarr-storage
   accessModes:
     - ReadWriteMany
   resources:
@@ -103,7 +103,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: lidarr-deployment
+  name: lidarr
   labels:
     app: lidarr
 spec:
@@ -136,18 +136,18 @@ spec:
       volumes:
       - name: lidarr-config
         persistentVolumeClaim:
-          claimName: lidarr-config-pvc
+          claimName: lidarr-config
       - name: transmission-storage
         persistentVolumeClaim:
-          claimName: transmission-lidarr-storage-pvc
+          claimName: transmission-lidarr-storage
       - name: music-storage
         persistentVolumeClaim: 
-          claimName: music-lidarr-storage-pvc
+          claimName: music-lidarr-storage
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: lidarr-service
+  name: lidarr
 spec:
   selector:
     app: lidarr
@@ -162,7 +162,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: lidarr-ingress
+  name: lidarr
   annotations:
     kubernets.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.io/whitelist-source-range: 85.144.63.138,192.168.1.0/24
@@ -171,16 +171,16 @@ metadata:
 spec:
   tls:
   - hosts:
-    - lidarr.k8s.thedutchmc.nl
-    secretName: thedutchmc-tls
+    - lidarr.k8s.array21.dev
+    secretName: array21-tls
   rules:
-  - host: lidarr.k8s.thedutchmc.nl
+  - host: lidarr.k8s.array21.dev
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: lidarr-service
+            name: lidarr
             port:
               number: 8686

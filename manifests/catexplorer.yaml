@@ -11,7 +11,7 @@ data:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: catexplorer-pv
+  name: catexplorer
 spec:
   capacity:
     storage: 10G
@@ -19,7 +19,7 @@ spec:
     - ReadWriteMany
   iscsi:
     targetPortal: 192.168.2.4:3260
-    iqn: 'iqn.2021-03.storage.thedutchmc.nl:catexplorer'
+    iqn: 'iqn.2021-05.intern.array21.dev:catexplorer'
     lun: 1
     fsType: 'ext4'
     readOnly: false
@@ -32,9 +32,9 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: catexplorer-pvc
+  name: catexplorer
 spec:
-  volumeName: catexplorer-pv
+  volumeName: catexplorer
   accessModes:
   - ReadWriteMany
   resources:
@@ -44,7 +44,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: catexplorer-deployment
+  name: catexplorer
   labels:
     app: catexplorer
 spec:
@@ -72,4 +72,4 @@ spec:
       volumes:
        - name: catexplorer-pics
          persistentVolumeClaim:
-           claimName: catexplorer-pvc
+           claimName: catexplorer

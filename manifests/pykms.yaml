@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: pykms-deployment
+  name: pykms
   labels:
     app: pykms
 spec:
@@ -38,7 +38,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: pykms-service
+  name: pykms
 spec:
   type: LoadBalancer
   selector:

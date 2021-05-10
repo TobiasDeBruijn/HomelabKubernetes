@@ -18,13 +18,13 @@ spec:
       containers:
       - name: location-server
         imagePullPolicy: Always
-        image: registry.thedutchmc.nl/twinsight-location-server:latest
+        image: docker-registry.k8s.array21.dev/twinsight-location-server:latest
         ports:
         - containerPort: 9010
           name: api
         env:
         - name: MYSQL_HOST
-          value: mariadb.labs.thedutchmc.nl
+          value: mariadb.intern.array21.dev
         - name: MYSQL_DATABASE
           value: twinsight-prod-location-server
         - name: MYSQL_USERNAME
