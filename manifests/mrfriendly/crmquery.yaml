@@ -16,23 +16,35 @@ spec:
         app: crmquery
     spec:
       containers:
-      - name: crmquery
+      - name: frontend
         imagePullPolicy: Always
-        image: registry.thedutchmc.nl/mrfriendly-crmquery:latest
+        image: docker-registry.k8s.array21.dev/mrfriendly-crmquery-frontend
         ports:
         - containerPort: 80
           name: web
         env:
-        - name: "ESPO_API_KEY"
-          valueFrom:
-            secretKeyRef:
-              name: crmquery
-              key: ESPO_API_KEY
+        - name: "HOST"
+          value: "https://crmquery-api.intern.mrfriendly.nl"
+        
+      - name: api
+        imagePullPolicy: Always
+        image: docker-registry.k8s.array21.dev/mrfriendly-crmquery-api
+        ports:
+        - containerPort: 8080
+          name: api
+        env:
         - name: "ESPO_URL"
+          value: "https://espocrm.intern.mrfriendly.nl"
+        - name: "API_KEY"
           valueFrom:
             secretKeyRef:
               name: crmquery
-              key: "ESPO_URL"
+              key: API_KEY
+        - name: "SECRET_KEY"
+          valueFrom:
+            secretKeyRef:
+              name: crmquery
+              key: SECRET_KEY
 ---
 apiVersion: v1
 kind: Service
@@ -47,11 +59,16 @@ spec:
     name: web
     port: 80
     targetPort: 80
+  
+  - protocol: TCP
+    name: api
+    port: 8080
+    targetPort: 8080
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: crmquery
+  name: crmquery-frontend
   namespace: mrfriendly
   annotations:
     kubernets.io/ingress.class: "nginx"
@@ -71,3 +88,27 @@ spec:
             name: crmquery
             port: 
               number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: crmquery-api
+  namespace: mrfriendly
+  annotations:
+    kubernets.io/ingress.class: "nginx"
+spec:
+  tls:
+  - hosts:
+    - crmquery-api.intern.mrfriendly.nl
+    secretName: mrfriendly-tls
+  rules:
+  - host: crmquery-api.intern.mrfriendly.nl
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: crmquery
+            port:
+              number: 8080

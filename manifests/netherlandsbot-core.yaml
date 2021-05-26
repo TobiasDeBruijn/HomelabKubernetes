@@ -1,4 +1,30 @@
 apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: modules
+spec:
+  capacity:
+    storage: 5G
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: /storage-pool/k8s/netherlandsbot-core
+    server: storage-ssd.intern.array21.dev
+  persistentVolumeReclaimPolicy: Retain
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: modules
+spec:
+  volumeName: modules
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5G
+---
+apiVersion: v1
 kind: ConfigMap
 metadata:
   name: netherlandsbot-core-config
@@ -15,7 +41,7 @@ data:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: netherlandsbot-core-deployment
+  name: netherlandsbot-core
   labels:
     app: netherlandsbot-core
 spec:
@@ -30,22 +56,14 @@ spec:
     spec:
       containers:
       - name: netherlandsbot-core
-        image: registry.thedutchmc.nl/netherlandsbot-core:latest
-        ports:
-        - name: tcp-module
-          containerPort: 5555
+        image: docker-registry.k8s.array21.dev/netherlandsbot-core:latest
         volumeMounts:
         - name: config
           mountPath: /config
         - name: module-config
           mountPath: /moduleconfig/
-        env:
-        - name: "HOI_MODULE"
-          value: "YES"
-        - name: "DICK_MEASURING_CONTEST"
-          value: "YES"
-        - name: "TCP_MODULE"
-          value: "NO"
+        - name: modules
+          mountPath: /modules
       volumes:
       - name: config
         secret:
@@ -61,17 +79,6 @@ spec:
             path: TCPModule.yml
           - key: hoi-module
             path: HoiModule.yml  
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: netherlandsbot-core-service
-spec:
-  type: LoadBalancer
-  selector:
-    app: netherlandsbot-core
-  ports:
-  - protocol: TCP
-    name: tcp-module
-    port: 5555
-    targetPort: 5555
+      - name: modules
+        persistentVolumeClaim:
+          claimName: modules
