@@ -16,8 +16,3 @@ I currently run a 10-node Kubernetes cluster in my homelab
 
 ## Why?
 To learn, mostly
-
-## TODO
-- [X] Scale to 3 master nodes to get full HA
-- [X] keepalived to make sure my router can always route to the K8s cluster
-- [X] Moving all applications from current Docker and LXCs deployments into the cluster
