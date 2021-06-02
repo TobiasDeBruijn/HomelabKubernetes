@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: reactioner-bot
+data:
+  config: |
+    botToken: FROM_ENV
+    commandPrefix: '%'
+    messageEntries:
+    - messageId: '740688169078358097'
+      reactionEntries:
+      - reactionName: purple_heart
+        roleId: 738026804815724684
+      - reactionName: blue_heart
+        roleId: 738026729549070426
+      - reactionName: yellow_heart
+        roleId: 738026881697185883
+      - reactionName: green_heart
+        roleId: 738026938236403852
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reactioner-bot
+  labels:
+    app: reactioner-bot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reactioner-bot
+  template:
+    metadata:
+      labels:
+        app: reactioner-bot
+    spec:
+      containers:
+      - name: reactioner-bot
+        imagePullPolicy: Always
+        image: docker-registry.k8s.array21.dev/reactioner-bot:latest
+        env:
+        - name: "BOT_TOKEN"
+          valueFrom:
+            secretKeyRef:
+              name: reactioner-bot
+              key: BOT_TOKEN
+        volumeMounts:
+        - name: config
+          mountPath: /config/
+      volumes:
+      - name: config
+        configMap:
+          name: reactioner-bot
+          items:
+          - key: config
+            path: config.yml
