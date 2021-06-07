@@ -1,0 +1,146 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: calibre-web
+  namespace: default
+type: "kubernetes.io/iscsi-chap"
+data:
+  node.session.auth.username: "Y2FsaWJyZQo="
+  node.session.auth.password: "VXNENEw2eGdIWHJuakdqZGUzSnJYMzh3TWU5clM2czgK"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: calibre-web
+spec:
+  capacity:
+    storage: 10G
+  accessModes:
+  - ReadWriteMany
+  iscsi:
+    targetPortal: 192.168.2.4:3260
+    iqn: 'iqn.2021-05.intern.array21.dev:calibre'
+    lun: 2
+    fsType: 'ext4'
+    readOnly: false
+    chapAuthDiscovery: true
+    chapAuthSession: true
+    secretRef:
+      name: calibre-web
+  persistentVolumeReclaimPolicy: Retain
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: calibre-web-books
+spec:
+  capacity:
+    storage: 25G
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: /storage-pool/k8s/calibre/books
+    server: storage-ssd.intern.array21.dev
+  persistentVolumeReclaimPolicy: Retain
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: calibre-web
+spec:
+  volumeName: calibre-web
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 10G
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: calibre-web-books
+spec:
+  volumeName: calibre-web-books
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 25G
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: calibre-web
+  labels:
+    app: calibre-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: calibre-web
+  template:
+    metadata:
+      labels:
+        app: calibre-web
+    spec:
+      containers:
+      - name: calibre-web
+        image: linuxserver/calibre-web
+        env:
+        - name: "TZ"
+          value: "Europe/Amsterdam"
+        - name: "DOCKER_MODES"
+          value: "linuxserver/calibre-web:calibre"
+        ports:
+        - name: gui
+          containerPort: 8083
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        - name: books
+          mountPath: /books
+      volumes:
+      - name: config
+        persistentVolumeClaim:
+          claimName: calibre-web
+      - name: books
+        persistentVolumeClaim:
+          claimName: calibre-web-books
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: calibre-web
+spec:
+  selector:
+    app: calibre-web
+  ports:
+  - name: web
+    protocol: TCP
+    port: 8083
+    targetPort: 8083
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: calibre-web
+  annotations:
+    kubernets.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.iio/proxy-body-size: 150m
+#    nginx.ingress.kubernetes.io/rewrite-target: /calibre-web/$1
+spec:
+  tls:
+  - hosts:
+    - calibre-web.k8s.array21.dev
+    secretName: array21-tls
+  rules:
+  - host: calibre-web.k8s.array21.dev
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: calibre-web
+            port:
+              number: 8083

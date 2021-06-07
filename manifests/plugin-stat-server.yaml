@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: plugin-stat-server
+  labels:
+    app: plugin-stat-server
+spec:
+  selector:
+    matchLabels:
+      app: plugin-stat-server
+  template:
+    metadata:
+      labels:
+        app: plugin-stat-server
+    spec:
+      containers:
+      - name: plugin-stat-server
+        imagePullPolicy: Always
+        image: docker-registry.k8s.array21.dev/plugin-stat-server:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: "MYSQL_HOST"
+          valueFrom:
+            secretKeyRef:
+              name: plugin-stat-server
+              key: MYSQL_HOST
+        - name: "MYSQL_DATABASE"
+          valueFrom:
+            secretKeyRef:
+              name: plugin-stat-server
+              key: MYSQL_DATABASE
+        - name: "MYSQL_USERNAME"
+          valueFrom:
+            secretKeyRef:
+              name: plugin-stat-server
+              key: MYSQL_USERNAME
+        - name: "MYSQL_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              name: plugin-stat-server
+              key: MYSQL_PASSWORD
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: plugin-stat-server
+spec:
+  selector:
+    app: plugin-stat-server
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: plugin-stat-server
+  annotations:
+    kubernets.io/ingress.class: "nginx"
+spec:
+  tls:
+  - hosts:
+    - plugin-stats.k8s.array21.dev
+    secretName: array21-tls
+  rules:
+  - host: plugin-stat.k8s.array21.dev
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: plugin-stat-server
+            port:
+              number: 8080
