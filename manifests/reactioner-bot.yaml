@@ -7,7 +7,7 @@ data:
     botToken: FROM_ENV
     commandPrefix: '%'
     messageEntries:
-    - messageId: '740688169078358097'
+    - messageId: '851879298650210315'
       reactionEntries:
       - reactionName: purple_heart
         roleId: 738026804815724684
@@ -17,6 +17,16 @@ data:
         roleId: 738026881697185883
       - reactionName: green_heart
         roleId: 738026938236403852
+    - messageId: '851879671955718146'
+      reactionEntries:
+      - reactionName: egg
+        roleId: 851883917127843921
+      - reactionName: chicken
+        roleId: 851883870965858344
+    - messageId: '851882998030663711'
+      reactionEntries:
+      - reactionName: frog
+        roleId: 644642055896694804
 ---
 apiVersion: apps/v1
 kind: Deployment
