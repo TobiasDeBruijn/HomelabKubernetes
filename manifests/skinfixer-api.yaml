@@ -28,6 +28,26 @@ spec:
             secretKeyRef:
               name: skinfixer-api
               key: API_KEY
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: skinfixer-api
+              key: DB_HOST
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: skinfixer-api
+              key: DB_NAME
+        - name: DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: skinfixer-api
+              key: DB_USERNAME
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: skinfixer-api
+              key: DB_PASSWORD
 ---
 apiVersion: v1
 kind: Service

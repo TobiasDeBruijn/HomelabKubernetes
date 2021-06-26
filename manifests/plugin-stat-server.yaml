@@ -5,6 +5,7 @@ metadata:
   labels:
     app: plugin-stat-server
 spec:
+  replicas: 6
   selector:
     matchLabels:
       app: plugin-stat-server
