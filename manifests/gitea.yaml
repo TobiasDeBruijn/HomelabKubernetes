@@ -1,0 +1,131 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gitea-iscsi-chap
+  namespace: default
+type: "kubernetes.io/iscsi-chap"
+data:
+  node.session.auth.username: "Z2l0ZWEK"
+  node.session.auth.password: "dzlKRmluNHM4dXlDM3BMVFZORWlHQ0ZjZG41UFRQczkK"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: gitea
+spec:
+  capacity:
+    storage: 25G
+  accessModes:
+  - ReadWriteMany
+  iscsi:
+    targetPortal: 192.168.2.4:3260
+    iqn: 'iqn.2021-05.intern.array21.dev:gitea'
+    lun: 1
+    fsType: 'ext4'
+    readOnly: false
+    chapAuthDiscovery: true
+    chapAuthSession: true
+    secretRef:
+      name: gitea-iscsi-chap
+  persistentVolumeReclaimPolicy: Retain
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gitea
+spec:
+  volumeName: gitea
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 25G
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitea
+  labels:
+    app: gitea
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gitea
+  template:
+    metadata:
+      labels:
+        app: gitea
+    spec:
+      containers:
+      - name: gitea
+        image: gitea/gitea:1.14.4
+        env:
+        - name: 'USER_UID'
+          value: '1000'
+        - name: 'USER_GID'
+          value: '1000'
+        - name: 'GITEA__database__DB_TYPE'
+          value: 'mysql'
+        - name: 'GITEA__database__HOST'
+          value: 'mariadb.intern.array21.dev'
+        - name: 'GITEA__database__NAME'
+          value: 'gitea'
+        - name: 'GITEA__database__USER'
+          valueFrom:
+            secretKeyRef:
+              name: gitea
+              key: user
+        - name: 'GITEA__database__PASSWD'
+          valueFrom:
+            secretKeyRef:
+              name: gitea
+              key: passwd
+        ports:
+        - name: web
+          containerPort: 3000
+        volumeMounts:
+        - name: data
+          mountPath: /data
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: gitea
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gitea
+spec:
+  type: LoadBalancer
+  selector:
+    app: gitea
+  ports:
+  - protocol: TCP
+    name: web
+    port: 3000
+    targetPort: 3000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gitea
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/proxy-body-size: 150m
+spec:
+  tls:
+  - hosts:
+    - gitea.k8s.array21.dev
+    secretName: array21-tls
+  rules:
+  - host: gitea.k8s.array21.dev
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: gitea
+            port:
+              number: 3000
