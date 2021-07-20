@@ -1,53 +1,57 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: subscription-server
+  name: device-server
   namespace: twinsight
   labels:
-    app: subscription-server
+    app: device-server
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: subscription-server
+      app: device-server
   template:
     metadata:
       labels: 
-        app: subscription-server
+        app: device-server
     spec:
       containers:
-      - name: subscription-server
+      - name: device-server
         imagePullPolicy: Always
-        image: docker-registry.k8s.array21.dev/twinsight-subscription-server:latest
+        image: docker-registry.k8s.array21.dev/twinsight-device-server:latest
         ports:
         - containerPort: 8080
           name: api
         env:
+        - name: RUST_BACKTRACE
+          value: "1"
         - name: MYSQL_HOST
           value: mariadb.intern.array21.dev
         - name: MYSQL_DATABASE
-          value: twinsight-prod-subscription-server
+          value: twinsight-prod-device-server
         - name: MYSQL_USERNAME
           valueFrom:
             secretKeyRef:
               name: content-manager
-              key: subscription-server-mysql-username
+              key: device-server-mysql-username
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
               name: content-manager
-              key: subscription-server-mysql-password
+              key: device-server-mysql-password
         - name: LOGIN_SERVER_HOST
           value: https://login.api.twinsight.media
+        - name: LOCATION_SERVER_HOST
+          value: https://location.api.twinsight.media
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: subscription-server
+  name: device-server
   namespace: twinsight
 spec:
   selector:
-    app: subscription-server
+    app: device-server
   ports:
   - protocol: TCP
     name: api
@@ -57,23 +61,23 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: subscription-server
+  name: device-server
   namespace: twinsight
   annotations:
     kubernetes.io/ingress.class: nginx
 spec:
   tls:
   - hosts:
-    - subscription.api.twinsight.media
+    - device.api.twinsight.media
     secretName: twinsight-media-tls
   rules:
-  - host: subscription.api.twinsight.media
+  - host: device.api.twinsight.media
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: subscription-server
+            name: device-server
             port:
               number: 8080
