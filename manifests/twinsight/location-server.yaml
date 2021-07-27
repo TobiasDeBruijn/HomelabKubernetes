@@ -20,7 +20,7 @@ spec:
         imagePullPolicy: Always
         image: docker-registry.k8s.array21.dev/twinsight-location-server:latest
         ports:
-        - containerPort: 9010
+        - containerPort: 8080
           name: api
         env:
         - name: MYSQL_HOST
@@ -51,8 +51,8 @@ spec:
   ports:
   - protocol: TCP
     name: api
-    port: 9010
-    targetPort: 9010
+    port: 8080
+    targetPort: 8080
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -76,4 +76,4 @@ spec:
           service:
             name: location-server
             port:
-              number: 9010
+              number: 8080

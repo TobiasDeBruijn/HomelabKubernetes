@@ -1,0 +1,110 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: drone-controller-iscsi-chap
+  namespace: drone
+type: "kubernetes.io/iscsi-chap"
+data:
+  node.session.auth.username: "ZHJvbmUK"
+  node.session.auth.password: "cFN2NzdDTjJvOE1XdmV1Rm1rQlYK"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: drone-controller
+  namespace: drone
+spec:
+  capacity:
+    storage: 5G
+  accessModes:
+    - ReadWriteMany
+  iscsi:
+    targetPortal: 192.168.2.4:3260
+    iqn: 'iqn.2021-05.intern.array21.dev:drone'
+    lun: 1
+    fsType: 'ext4'
+    readOnly: false
+    chapAuthDiscovery: true
+    chapAuthSession: true
+    secretRef:
+      name: drone-controller-iscsi-chap
+  persistentVolumeReclaimPolicy: Retain
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: drone-controller
+  namespace: drone
+spec:
+  volumeName: drone-controller
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 5G
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: drone-controller
+  namespace: drone
+  labels:
+    app: drone
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: drone-controller
+  template:
+    metadata:
+      labels:
+        app: drone-controller
+    spec:
+      serviceAccountName: drone
+      containers:
+      - name: drone-controller
+        image: drone/drone:1.10.1
+        env:
+        - name: "DRONE_GITHUB_CLIENT_ID"
+          valueFrom:
+            secretKeyRef:
+              name: drone
+              key: github-client-id
+        - name: "DRONE_GITHUB_CLIENT_SECRET"
+          valueFrom:
+            secretKeyRef:
+              name: drone
+              key: github-client-secret
+        - name: "DRONE_RPC_SECRET"
+          valueFrom:
+            secretKeyRef:
+              name: drone
+              key: rpc-secret
+        - name: "DRONE_SERVER_HOST"
+          value: "drone.k8s.array21.dev"
+        - name: "DRONE_SERVER_PROTO"
+          value: "https"
+        - name: "DRONE_TLS_CERT"
+          value: "/etc/certs/drone.k8s.array21.dev/tls.crt"
+        - name: "DRONE_TLS_KEY"
+          value: "/etc/certs/drone.k8s.array21.dev/tls.key"
+        - name: "DRONE_USER_CREATE"
+          value: "username:thedutchmc,admin:true"
+        - name: "DRONE_SERVICE_ACCOUNT_DEFAULT"
+          value: "drone"
+        ports:
+        - containerPort: 443
+          name: webinterface
+        volumeMounts:
+        - name: ssl-keys
+          mountPath: /etc/certs/drone.k8s.array21.dev/
+          readOnly: true
+        - name: drone-config
+          mountPath: /data
+      volumes:
+      - name: ssl-keys
+        secret:
+          secretName: array21-tls
+      - name: drone-config
+        persistentVolumeClaim:
+          claimName: drone-controller

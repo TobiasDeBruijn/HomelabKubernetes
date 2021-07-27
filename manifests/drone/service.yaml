@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: drone
+  name: drone-controller
+spec:
+  selector:
+    app: drone-controller
+  ports:
+  - protocol: TCP
+    name: webinterface
+    port: 443
+    targetPort: 443
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: drone-controller
+  namespace: drone
+  annotations:
+    kubernets.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    nginx.ingress.kubernetes.io/proxy-body-size: 150m
+    nginx.ingress.kubernetes.io/whitelist-source-range: 85.144.63.138,192.168.1.0/24
+spec:
+  tls:
+  - hosts:
+    - drone.k8s.array21.dev
+    secretName: array21-tls
+  rules:
+  - host: drone.k8s.array21.dev
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: drone-controller
+            port:
+              number: 443

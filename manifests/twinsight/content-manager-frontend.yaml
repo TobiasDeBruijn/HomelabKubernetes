@@ -1,0 +1,63 @@
+  
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: content-manager-frontend
+  namespace: twinsight
+  labels:
+    app: content-manager-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: content-manager-frontend
+  template:
+    metadata:
+      labels: 
+        app: content-manager-frontend
+    spec:
+      containers:
+      - name: content-manager-frontend
+        imagePullPolicy: Always
+        image: docker-registry.k8s.array21.dev/twinsight-content-manager-frontend:latest
+        ports:
+        - containerPort: 80
+          name: web
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: content-manager-frontend
+  namespace: twinsight
+spec:
+  selector:
+    app: content-manager-frontend
+  ports:
+  - protocol: TCP
+    name: web
+    port: 80
+    targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: content-manager-frontend
+  namespace: twinsight
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  tls:
+  - hosts:
+    - content-manager.staging.twinsight.media
+    secretName: twinsight-media-tls
+  rules:
+  - host: content-manager.staging.twinsight.media
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: content-manager-frontend
+            port:
+              number: 80
