@@ -14,5 +14,5 @@ spec:
         cloudflare:
           email: cloudflare@signin.array21.dev
           apiTokenSecretRef:
-            name: cloudflare-mrfriendly
+            name: cloudflare-twinsight-media
             key: api_token
