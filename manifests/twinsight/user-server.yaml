@@ -63,11 +63,12 @@ metadata:
   namespace: twinsight
   annotations:
     kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: "letsencrypt-twinsight-media"
 spec:
   tls:
   - hosts:
     - user.api.twinsight.media
-    secretName: twinsight-media-tls
+    secretName: user-api-twinsight-media-tls
   rules:
   - host: user.api.twinsight.media
     http:

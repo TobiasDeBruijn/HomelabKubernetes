@@ -1,4 +1,3 @@
-#This file is for Jellyfin, which is not running inside the Kubernetes cluster
 apiVersion: v1
 kind: Service
 metadata:
@@ -7,7 +6,6 @@ spec:
   type: ExternalName
   externalName: jellyfin.intern.array21.dev
 ---
-#Regular Jellyfin ingress resource.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -16,12 +14,13 @@ metadata:
     kubernetes.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
-    nginx.ingress.kubernetes.io/proxy-buffering: "off"    
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"  
+    cert-manager.io/cluster-issuer: "letsencrypt-array21"  
 spec:
   tls:
   - hosts:
     - media.array21.nl
-    secretName: array21-tls
+    secretName: media-array21-tls
   rules:
   - host: media.array21.dev
     http:
@@ -34,13 +33,13 @@ spec:
             port:
               number: 8096
 ---
-#Websocket ingress resource for Jellyfin
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: jellyfin-websocket
   annotations:
     kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-array21"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
     nginx.ingress.kubernetes.io/configuration-snippet: |-
@@ -50,7 +49,7 @@ spec:
   tls:
   - hosts:
     - media.array21.nl
-    secretName: array21-tls
+    secretName: media-array21-tls
   rules:
   - host: media.array21.dev
     http:

@@ -71,12 +71,14 @@ metadata:
   name: crmquery-frontend
   namespace: mrfriendly
   annotations:
-    kubernets.io/ingress.class: "nginx"
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-mrfriendly"
+
 spec:
   tls:
   - hosts:
     - crmquery.intern.mrfriendly.nl
-    secretName: mrfriendly-tls
+    secretName: crmquery-intern-mrfriendly-tls
   rules:
   - host: crmquery.intern.mrfriendly.nl
     http:
@@ -95,12 +97,13 @@ metadata:
   name: crmquery-api
   namespace: mrfriendly
   annotations:
-    kubernets.io/ingress.class: "nginx"
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-mrfriendly"
 spec:
   tls:
   - hosts:
     - crmquery-api.intern.mrfriendly.nl
-    secretName: mrfriendly-tls
+    secretName: crmquery-api-intern-mrfriendly-tls
   rules:
   - host: crmquery-api.intern.mrfriendly.nl
     http:

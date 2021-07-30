@@ -82,11 +82,14 @@ kind: Ingress
 metadata:
   name: mailsync-api
   namespace: mrfriendly
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-mrfriendly"
+    kubernetes.io/ingress.class: "nginx"
 spec:
   tls:
   - hosts:
-    - mailsync-api.mrfriendly.nl
-    secretName: mrfriendly-tls
+    - mailsync-api.intern.mrfriendly.nl
+    secretName: mailsync-api-intern-mrfriendly-tls
   rules:
   - host: mailsync-api.intern.mrfriendly.nl
     http:
