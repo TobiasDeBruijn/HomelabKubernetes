@@ -1,14 +1,16 @@
 [master]
-#k8s-m1 ansible_host= ansible_user=tobias
-#k8s-m2 ansible_host=192.168.1.231 ansible_user=tobias
-#k8s-m3 ansible_host=192.168.1.232 ansible_user=tobias
+#apollom1 ansible_host=10.10.4.29
+#apollom2 ansible_host=10.10.4.30
+#apollom3 ansible_host=10.10.4.31
+athenam2 ansible_host=10.10.4.23
 
 [workers]
-#k8s-w1 ansible_host=192.168.1.233 ansible_user=tobias
-#k8s-w2 ansible_host=192.168.1.234 ansible_user=tobias
-#k8s-w3 ansible_host=192.168.1.235 ansible_user=tobias
-k8s-w4 ansible_host=10.10.4.19 ansible_user=tobias
-k8s-w5 ansible_host=10.10.4.20 ansible_user=tobias
+#athenaw1 ansible_host=10.10.4.26
+#athenaw2 ansible_host=10.10.4.27
+#athenaw3 ansible_host=10.10.4.28
+#apollow1 ansible_host=10.10.4.32
+#apollow2 ansible_host=10.10.4.33
 
 [all:vars]
 ansible_python_interpreter=/usr/bin/python3
+ansible_user = tobias

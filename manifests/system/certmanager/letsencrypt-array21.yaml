@@ -1,0 +1,18 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-array21
+  namespace: cert-manager
+spec:
+  acme:
+    email: t.debruijn@array21.dev
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-array21
+    solvers:
+    - dns01:
+        cloudflare:
+          email: cloudflare@signin.array21.dev
+          apiTokenSecretRef:
+            name: cloudflare-array21
+            key: api_token

@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:  
+  name: longhorn
+  namespace: longhorn-system
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: 'false'
+    cert-manager.io/cluster-issuer: "letsencrypt-array21"
+    nginx.ingress.kubernetes.io/whitelist-source-range: "85.144.63.138,192.168.1.0/24"    
+
+spec:
+  tls:
+  - hosts:
+    - longhorn.k8s.array21.dev
+    secretName: longhorn-array21-tls
+  rules:
+  - host: longhorn.k8s.array21.dev
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: longhorn-frontend
+            port:
+              number: 80

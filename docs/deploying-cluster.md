@@ -6,43 +6,36 @@
 1. initial.yml
 2. kube-dependencies.yml
 
-
 ### Create the cluster
-1. One one of your master nodes: ``kubeadm init --pod-network-cidr 10.253.0.0/16 --service-cidr 10.254.0.0/16 --control-plane-endpoint 192.168.1.254 --apiserver-advertise-address 192.168.1.254 --upload-certs``
->Note: Replace the IPs with your own. In my case 192.168.1.254 is a virtual IP, assigned to nodes with keepalived
-2. Join your masters and workers to the cluster with the provided commands by kubeadm.
+1. One one of your master nodes: ``kubeadm init --upload-certs --pod-network-cidr 172.17.0.0/16 --service-cidr 10.80.4.0/22 --control-plane-endpoint kube-control.intern.array21.dev``
+>Note: Replace the IPs with your own. kube-control.intern.array21.dev points to 10.10.4.254, a virtual IP, assigned to nodes with keepalived
+2. Join **one** worker, then follow this document before joining more nodes.
 
 ### Install & Configure Calico
 >See: https://docs.projectcalico.org/getting-started/kubernetes/quickstart
 1. kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
-2. kubectl apply -f /manifests/calico-custom-resources.yaml
+2. kubectl apply -f kubernetes/manifests/system/calico.yaml
 3. watch kubectl get pods -n calico-system
->Note: Wait until ALL pods show RUNNING
-
-
-### Install MetalLB
->See: https://metallb.universe.tf/installation/
-1. `kubectl edit configmap -n kube-system kube-proxy`, change `strictARP: false` to `strictARP: true`
-2. kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.5/manifests/namespace.yaml
-3. kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.5/manifests/metallb.yaml
-4. kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey="$(openssl rand -base64 128)"
-
-### Configure MetalLB
->See: https://metallb.universe.tf/configuration/
-5. kubectl apply -f /manifest/metallb.yaml
+>Note: Wait until all pods show `Running`
 
 ### Install NGINX Ingress Controller
-1. kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.44.0/deploy/static/provider/baremetal/deploy.yaml
-2. Edit the NGINX ingress controller configuration: `kubectl -n ingress-nginx edit svc ingress-nginx-controller`. Change `type: NodePort` to `type: LoadBalancer`
+1. kubectl apply -f kubernetes/manifests/system/nginx.yaml
 
-You should now be able to see that the nginx-ingress-controller service has received External IP from MetalLB: `kubectl get svc -n ingress-nginx`  
-This should give something like:
-```
-k8s@K8s-M1:~/manifests$ kubectl get svc -n ingress-nginx
-NAME                                 TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE
-ingress-nginx-controller             LoadBalancer   10.254.183.79   10.10.10.10   80:30058/TCP,443:31237/TCP   58m
-ingress-nginx-controller-admission   ClusterIP      10.254.64.193   <none>        443/TCP                      58m
-```
+### Metrics server
+1. kubectl apply -f kubernetes/manifests/system/metrics-server.yaml
+
+### Certmanager
+1. kubectl apply -f https://github.com/jetstack/cert-manager/releases/latest/download/cert-manager.yaml
+2. kubectl apply -f secrets/certmanager/cloudflare-array21.yaml
+>Note: Also apply other secrets here
+3. kubectl apply -f kubernetes/manifests/system/certmanager/letsencrypt-array21.yaml
+>Note: Also apply other secrets here
+
+### Longhorn
+1. kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v1.1.2/deploy/longhorn.yaml
+2. kubectl apply -f kubernetes/manifests/system/longhorn/ingress.yaml
+3. kubectl create -f https://raw.githubusercontent.com/longhorn/longhorn/v1.1.2/examples/storageclass.yaml
+
 
 ## See also 
 - https://github.com/leocavalcante/up-n-running-k8s
