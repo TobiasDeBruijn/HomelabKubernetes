@@ -19,7 +19,7 @@ metadata:
 spec:
   tls:
   - hosts:
-    - media.array21.nl
+    - media.array21.dev
     secretName: media-array21-tls
   rules:
   - host: media.array21.dev
