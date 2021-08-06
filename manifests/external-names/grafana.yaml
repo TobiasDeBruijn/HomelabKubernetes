@@ -20,6 +20,7 @@ spec:
   - hosts:
     - grafana.k8s.array21.dev
     secretName: grafana-k8s-array21-dev
+
   rules:
   - host: grafana.k8s.array21.dev
     http:

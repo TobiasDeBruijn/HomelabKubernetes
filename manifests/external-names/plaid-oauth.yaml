@@ -11,13 +11,13 @@ kind: Ingress
 metadata:
   name: plaid-oauth
   annotations:
-    kubernets.io/ingress.class: "nginx"
-#    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-array21"
 spec:
   tls:
   - hosts:
     - plaid-oauth.k8s.array21.dev
-    secretName: array21-tls
+    secretName: plaid-oauth-k8s-array21-tls
   rules:
   - host: plaid-oauth.k8s.array21.dev
     http:
