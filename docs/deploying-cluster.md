@@ -36,6 +36,5 @@
 2. kubectl apply -f kubernetes/manifests/system/longhorn/ingress.yaml
 3. kubectl create -f https://raw.githubusercontent.com/longhorn/longhorn/v1.1.2/examples/storageclass.yaml
 
-
 ## See also 
 - https://github.com/leocavalcante/up-n-running-k8s

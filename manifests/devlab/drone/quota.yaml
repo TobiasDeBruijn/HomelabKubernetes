@@ -8,3 +8,16 @@ spec:
     limits.cpu: "2" 
     limits.memory: 2Gi 
     limits.ephemeral-storage: 4Gi
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: default-limit
+  namespace: drone
+spec:
+  limits:
+  - default:
+      memory: 512Mi
+      cpu: 500m
+      ephemeral-storage: 128Mi
+    type: Container

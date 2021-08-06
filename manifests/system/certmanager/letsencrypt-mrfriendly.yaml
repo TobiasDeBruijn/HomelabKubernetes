@@ -1,0 +1,18 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-mrfriendly
+  namespace: cert-manager
+spec:
+  acme:
+    email: t.debruijn@array21.dev
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-mrfriendly
+    solvers:
+    - dns01:
+        cloudflare:
+          email: cloudflare@signin.array21.dev
+          apiTokenSecretRef:
+            name: cloudflare-mrfriendly
+            key: api_token

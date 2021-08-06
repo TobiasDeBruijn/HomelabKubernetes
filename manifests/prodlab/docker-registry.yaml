@@ -1,50 +1,43 @@
 apiVersion: v1
-kind: Secret
-metadata:
-  name: docker-registry-iscsi-chap
-  namespace: default
-type: "kubernetes.io/iscsi-chap"
-data:
-  node.session.auth.username: "ZG9ja2VyCg=="
-  node.session.auth.password: "RVlvYlZkVlhSNTJNMlIK"
----
-apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: docker-registry
+  namespace: prodlab
 spec:
   capacity:
-    storage: 50G
+    storage: 20Gi
+  volumeMode: Filesystem
   accessModes:
-    - ReadWriteMany
-  iscsi:
-    targetPortal: 192.168.2.4:3260
-    iqn: 'iqn.2021-05.intern.array21.dev:docker'
-    lun: 1
-    fsType: 'ext4'
-    readOnly: false
-    chapAuthDiscovery: true
-    chapAuthSession: true
-    secretRef:
-      name: docker-registry-iscsi-chap
+  - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
+  storageClassName: longhorn-static
+  csi:
+    driver: driver.longhorn.io
+    fsType: ext4
+    volumeAttributes:
+      numberOfReplicas: '1'
+      staleReplicaTimeout: '2880'
+    volumeHandle: docker-registry
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: docker-registry
+  namespace: prodlab
 spec:
-  volumeName: docker-registry
   accessModes:
   - ReadWriteMany
   resources:
     requests:
-      storage: 50G
+      storage: 20Gi
+  volumeName: docker-registry
+  storageClassName: longhorn-static
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: docker-registry
+  namespace: prodlab
   labels:
     app: docker-registry
 spec:
@@ -67,12 +60,16 @@ spec:
         - name: registry-storage
           mountPath: /var/lib/registry
       - name: docker-registry-ui
-        image: joxit/docker-registry-ui:static
+        image: joxit/docker-registry-ui:2.0
         env:
-        - name: "URL"
+        - name: "REGISTRY_URL"
           value: "https://docker-registry.k8s.array21.dev"
         - name: "REGISTRY_TITLE"
-          value: "TheDutchMC Docker Registry"
+          value: "Array21 Docker Registry"
+        - name: "SINGLE_REGISTRY"
+          value: "true"
+        - name: "DELETE_IMAGES"
+          value: "true"
         ports:
         - containerPort: 80
           name: interface
@@ -85,6 +82,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: docker-registry
+  namespace: prodlab
 spec:
   selector:
     app: docker-registry
@@ -102,17 +100,19 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: docker-registry
+  namespace: prodlab
   annotations:
     kubernetes.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.io/proxy-body-size: 1024m
     nginx.ingress.kubernetes.io/enable-cors: "true"    
     nginx.ingress.kubernetes.io/cors-allow-origin: "*"
-    nginx.ingress.kubernetes.io/whitelist-source-range: 85.144.63.138,192.168.1.0/24
+    cert-manager.io/cluster-issuer: "letsencrypt-array21"
+
 spec:
   tls:
   - hosts:
     - docker-registry.k8s.array21.dev
-    secretName: array21-tls
+    secretName: docker-registry-k8s-array21-tls
   rules:
   - host: docker-registry.k8s.array21.dev
     http:
@@ -129,17 +129,19 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: docker-dashboard-registry-ingress
+  namespace: prodlab
   annotations:
     kubernetes.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.io/enable-cors: "true"
     nginx.ingress.kubernetes.io/cors-allow-origin: "*"
-    nginx.ingress.kubernetes.io/whitelist-source-range: "85.144.63.138,192.168.1.0/24"
+    nginx.ingress.kubernetes.io/whitelist-source-range: "10.10.0.0/16"
+    cert-manager.io/cluster-issuer: "letsencrypt-array21"
 
 spec:
   tls:
   - hosts:
     - docker-dashboard.k8s.array21.dev
-    secretName: array21-tls
+    secretName: docker-dashboard-k8s-array21-tls
   rules:
   - host: docker-dashboard.k8s.array21.dev
     http:

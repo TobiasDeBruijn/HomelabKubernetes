@@ -1,34 +1,23 @@
 apiVersion: v1
-kind: Secret
-metadata:
-  name: espocrm-iscsi-chap
-  namespace: mrfriendly
-type: "kubernetes.io/iscsi-chap"
-data:
-  node.session.auth.username: "ZXNwb2NybQo="
-  node.session.auth.password: "M2ZSQjdYSEI1YkV6ckwK"
----
-apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: espocrm
   namespace: mrfriendly
 spec:
   capacity:
-    storage: 1G
+    storage: 1Gi
+  volumeMode: Filesystem
   accessModes:
-    - ReadWriteMany
-  iscsi:
-    targetPortal: 192.168.2.4:3260
-    iqn: 'iqn.2021-05.intern.array21.dev:espocrm'
-    lun: 1
-    fsType: 'ext4'
-    readOnly: false
-    chapAuthDiscovery: true
-    chapAuthSession: true
-    secretRef:
-      name: espocrm-iscsi-chap
+  - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
+  storageClassName: longhorn-static
+  csi:
+    driver: driver.longhorn.io
+    fsType: ext4
+    volumeAttributes:
+      numberOfReplicas: '3'
+      staleReplicaTimeout: '2880'
+    volumeHandle: espocrm
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -36,12 +25,13 @@ metadata:
   name: espocrm
   namespace: mrfriendly
 spec:
-  volumeName: espocrm
   accessModes:
-    - ReadWriteMany
+  - ReadWriteMany
   resources:
     requests:
-      storage: 1G
+      storage: 1Gi
+  volumeName: espocrm
+  storageClassName: longhorn-static
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -63,7 +53,7 @@ spec:
       containers:
       - name: espocrm
         imagePullPolicy: Always
-        image: docker-registry.k8s.array21.dev/espocrm:latest
+        image: docker-registry.k8s.array21.dev/mrfriendly-espocrm:latest
         ports:
         - containerPort: 80
           name: web
@@ -97,11 +87,12 @@ metadata:
   annotations:
     kubernets.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.io/proxy-body-size: 150m
+    cert-manager.io/cluster-issuer: "letsencrypt-mrfriendly"
 spec:
   tls:
   - hosts:
     - espocrm.intern.mrfriendly.nl
-    secretName: mrfriendly-tls
+    secretName: espocrm-intern-mrfriendly-nl
   rules:
   - host: espocrm.intern.mrfriendly.nl
     http:

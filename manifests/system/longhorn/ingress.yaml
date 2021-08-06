@@ -6,7 +6,7 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: 'false'
     cert-manager.io/cluster-issuer: "letsencrypt-array21"
-    nginx.ingress.kubernetes.io/whitelist-source-range: "85.144.63.138,192.168.1.0/24"    
+    nginx.ingress.kubernetes.io/whitelist-source-range: "10.10.0.0/16"
 
 spec:
   tls:

@@ -33,8 +33,8 @@
       state: present
       update_cache: yes
     loop:
-    - kubelet
-    - kubeadm
+    - kubelet=1.21.3-00
+    - kubeadm=1.21.3-00
     - containerd
     - nfs-common
     - open-iscsi
@@ -82,6 +82,6 @@
       state: present
       update_cache: yes
     loop:
-    - kubectl
+    - kubectl=1.21.3-00
     - acl
     - keepalived

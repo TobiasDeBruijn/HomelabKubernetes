@@ -35,7 +35,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: "nginx"
     cert-manager.io/cluster-issuer: "letsencrypt-array21"
-    nginx.ingress.kubernetes.io/whitelist-source-range: "85.144.63.138,192.168.1.0/24"
+   # nginx.ingress.kubernetes.io/whitelist-source-range: "10.10.0.0/16,80.100.142.110/32"
 
 spec:
   tls:
