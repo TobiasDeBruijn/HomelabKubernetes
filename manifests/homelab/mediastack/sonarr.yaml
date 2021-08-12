@@ -1,109 +1,102 @@
 apiVersion: v1
-kind: Secret
-metadata:
-  name: sonarr-iscsi-chap
-  namespace: default
-type: "kubernetes.io/iscsi-chap"
-data:
-  node.session.auth.username: "c29uYXJyCg=="
-  node.session.auth.password: "WlBIZUJLNDdybjVaRlhyOXkzakMK"
----
-#Sonarrs storage directory. iSCSI
-apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: sonarr-config
+  name: sonarr-data
+  namespace: homelab
 spec:
   capacity:
-    storage: 1G
+    storage: 500Mi
+  volumeMode: Filesystem
   accessModes:
-    - ReadWriteMany
-  iscsi:
-    targetPortal: 192.168.2.4:3260
-    iqn: 'iqn.2021-05.intern.array21.dev:sonarr'
-    lun: 1
-    fsType: 'ext4'
-    readOnly: false
-    chapAuthDiscovery: true
-    chapAuthSession: true
-    secretRef:
-      name: sonarr-iscsi-chap
+  - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
+  storageClassName: longhorn-static
+  csi:
+    driver: driver.longhorn.io
+    fsType: ext4
+    volumeAttributes:
+      numberOfReplicas: '3'
+      staleReplicaTimeout: '2880'
+    volumeHandle: sonarr
 ---
-#Transmissions download directory. NFS
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sonarr-data
+  namespace: homelab
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 500Mi
+  volumeName: sonarr-data
+  storageClassName: longhorn-static
+---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: transmission-sonarr-storage
+  name: sonarr-transmission
+  namespace: homelab
 spec:
   capacity:
     storage: 2000G
   accessModes:
-    - ReadWriteMany
+  - ReadWriteMany
   nfs:
     path: /storage-pool/transmission
     server: storage-hdd.intern.array21.dev
   persistentVolumeReclaimPolicy: Retain
 ---
-#Export Directory for Sonarr. NFS
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: tvshow-sonarr-storage
-spec:
-  capacity:
-    storage: 10000G
-  accessModes:
-    - ReadWriteMany
-  nfs:
-    path: /storage-pool/media/tvshows
-    server: storage-hdd.intern.array21.dev
-  persistentVolumeReclaimPolicy: Retain
----
-#Sonarrs config directory
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: sonarr-config
+  name: sonarr-transmission
+  namespace: homelab
 spec:
-  volumeName: sonarr-config
+  volumeName: sonarr-transmission
+  storageClassName: ""
   accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 1G
----
-#Transmissions download directory
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: transmission-sonarr-storage
-spec:
-  volumeName: transmission-sonarr-storage
-  accessModes:
-    - ReadWriteMany
+  - ReadWriteMany
   resources:
     requests:
       storage: 2000G
 ---
-#Sonarrs export directory for TV Shows
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: sonarr-tvshows
+  namespace: homelab
+spec:
+  capacity:
+    storage: 10000G
+  accessModes:
+  - ReadWriteMany
+  nfs:
+    path: /storage-pool/media/tvshows
+    server: storage-hdd.intern.array21.dev
+  persistentVolumeReclaimPolicy: Retain
+
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: tvshow-sonarr-storage
+  name: sonarr-tvshows
+  namespace: homelab
 spec:
-  volumeName: tvshow-sonarr-storage
+  volumeName: sonarr-tvshows
+  storageClassName: ""
   accessModes:
-    - ReadWriteMany
+  - ReadWriteMany
   resources:
     requests:
       storage: 10000G
 ---
-#Deployment. Sonarr container
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: sonarr
+  namespace: homelab
   labels:
     app: sonarr
 spec:
@@ -118,57 +111,56 @@ spec:
     spec:
       containers:
       - name: sonarr
-        image: 'linuxserver/sonarr:latest'
+        image: linuxserver/sonarr
         ports:
         - containerPort: 8989
-          name: webint
         volumeMounts:
-        - name: sonarr-config
+        - name: data
           mountPath: /config
-        - name: transmission-storage
+        - name: transmission
           mountPath: /data/completed/
-        - name: tvshow-storage
+        - name: tvshows
           mountPath: /tv
       volumes:
-      - name: sonarr-config
+      - name: data
         persistentVolumeClaim:
-          claimName: sonarr-config
-      - name: transmission-storage
+          claimName: sonarr-data
+      - name: transmission
         persistentVolumeClaim:
-          claimName: transmission-sonarr-storage
-      - name: tvshow-storage
+          claimName: sonarr-transmission
+      - name: tvshows
         persistentVolumeClaim: 
-          claimName: tvshow-sonarr-storage
+          claimName: sonarr-tvshows
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: sonarr
+  namespace: homelab
 spec:
   selector:
     app: sonarr
   ports:
-  #Webinterface
   - protocol: TCP
-    name: webint
     port: 8989
     targetPort: 8989
 ---
-#Ingress resource. Picked up by the NGINX ingress controller
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: sonarr-ingress
+  namespace: homelab
   annotations:
-    kubernets.io/ingress.class: "nginx"
-    nginx.ingress.kubernetes.io/whitelist-source-range: 85.144.63.138,192.168.1.0/24
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/whitelist-source-range: 10.10.0.0/16
     nginx.ingress.kubernetes.io/proxy-body-size: 150m
+    cert-manager.io/cluster-issuer: letsencrypt-array21
 
 spec:
   tls:
   - hosts:
     - sonarr.k8s.array21.dev
-    secretName: array21-tls
+    secretName: sonarr-k8s-array21-dev
   rules:
   - host: sonarr.k8s.array21.dev
     http:

@@ -33,7 +33,6 @@ spec:
   volumeName: transmission-data
   storageClassName: longhorn-static
 ---
-#Transmissions download directory. NFS
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -49,7 +48,6 @@ spec:
     server: storage-hdd.intern.array21.dev
   persistentVolumeReclaimPolicy: Retain
 ---
-#Transmissions download directory
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -86,7 +84,6 @@ spec:
         image: "haugene/transmission-openvpn:3.7"
         ports:
         - containerPort: 9091
-          name: webit
         securityContext:
           capabilities:
             add:
@@ -111,7 +108,7 @@ spec:
         - name: "CREATE_TUN_DEVICE"
           value: "true"
         - name: "LOCAL_NETWORK"
-          value: "192.168.1.0/24,10.0.0.0/8"
+          value: "10.0.0.0/8,172.16.0.0/12"
         - name: "WEBPROXY_ENABLED"
           value: "false"
         - name: "OPENVPN_OPTS"
@@ -167,7 +164,6 @@ spec:
     app: transmission
   ports:
   - protocol: TCP
-    name: webint
     port: 9091
     targetPort: 9091
 ---
@@ -177,7 +173,7 @@ metadata:
   namespace: homelab
   name: transmission
   annotations:
-    kubernets.io/ingress.class: "nginx"
+    kubernetes.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.io/whitelist-source-range: "10.10.0.0/16"
     cert-manager.io/cluster-issuer: 'letsencrypt-array21'
 spec:

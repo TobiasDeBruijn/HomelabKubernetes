@@ -1,4 +1,3 @@
-  
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -22,7 +21,6 @@ spec:
         image: docker-registry.k8s.array21.dev/twinsight-content-manager-frontend:latest
         ports:
         - containerPort: 80
-          name: web
 ---
 apiVersion: v1
 kind: Service
@@ -34,7 +32,6 @@ spec:
     app: content-manager-frontend
   ports:
   - protocol: TCP
-    name: web
     port: 80
     targetPort: 80
 ---
@@ -50,7 +47,7 @@ spec:
   tls:
   - hosts:
     - content-manager.staging.twinsight.media
-    secretName: content-manager-staging-twinsight-media-tls
+    secretName: content-manager-staging-twinsight-media
   rules:
   - host: content-manager.staging.twinsight.media
     http:

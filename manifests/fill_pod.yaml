@@ -4,7 +4,7 @@ metadata:
   name: fill-pod
 spec:
   capacity:
-    storage: 1Gi
+    storage: 2Gi
   volumeMode: Filesystem
   accessModes:
   - ReadWriteMany
@@ -16,7 +16,7 @@ spec:
     volumeAttributes:
       numberOfReplicas: '3'
       staleReplicaTimeout: '2880'
-    volumeHandle: transmission
+    volumeHandle: catexplorer
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -27,7 +27,7 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: 1Gi
+      storage: 2Gi
   volumeName: fill-pod
   storageClassName: longhorn-static
 ---

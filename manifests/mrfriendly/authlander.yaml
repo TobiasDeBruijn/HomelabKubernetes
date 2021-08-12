@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: authserver
+  name: authlander
   namespace: mrfriendly
   labels:
-    app: authserver
+    app: authlander
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: authserver
+      app: authlander
   template:
     metadata:
       labels:
-        app: authserver
+        app: authlander
     spec:
       containers:
-      - name: authserver
-        image: docker-registry.k8s.array21.dev/authserver:latest
+      - name: authlander
+        image: docker-registry.k8s.array21.dev/authlander:latest
         ports:
         - name: api
           containerPort: 8080
@@ -25,38 +25,38 @@ spec:
         - name: "GOOGLE_CLIENT_ID"
           valueFrom:
             secretKeyRef:
-              name: authserver
-              key: google_client_id
+              name: authlander
+              key: google-client-id
         - name: "GOOGLE_CLIENT_SECRET"
           valueFrom:
             secretKeyRef:
-              name: authserver
-              key: google_client_secret
+              name: authlander
+              key: google-client-secret
         - name: "HOST"
-          value: "https://auth.api.mrfriendly.nl"
+          value: "https://authlander.intern.mrfriendly.nl"
         - name: "MYSQL_HOST"
           value: "mariadb.intern.array21.dev"
         - name: "MYSQL_DATABASE"
-          value: "authserver"
+          value: "mrfriendly_prod_authlander"
         - name: "MYSQL_USERNAME"
           valueFrom:
             secretKeyRef:
-              name: authserver
-              key: mysql_username
+              name: authlander
+              key: mysql-username
         - name: "MYSQL_PASSWORD"
           valueFrom:
             secretKeyRef:
-              name: authserver
-              key: mysql_password
+              name: authlander
+              key: mysql-password
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: authserver
+  name: authlander
   namespace: mrfriendly
 spec:
   selector:
-    app: authserver
+    app: authlander
   ports:
   - protocol: TCP
     name: api
@@ -66,23 +66,24 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: authserver
+  name: authlander
   namespace: mrfriendly
   annotations:
     kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-mrfriendly"
 spec:
   tls:
   - hosts:
-    - auth.api.mrfriendly.nl
-    secretName: mrfriendly-tls
+    - authlander.intern.mrfriendly.nl
+    secretName: authlander-intern-mrfriendly-nl
   rules:
-  - host: auth.api.mrfriendly.nl
+  - host: authlander.intern.mrfriendly.nl
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: authserver
+            name: authlander
             port:
               number: 8080

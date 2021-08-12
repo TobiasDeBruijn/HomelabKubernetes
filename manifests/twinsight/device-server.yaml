@@ -32,17 +32,17 @@ spec:
         - name: MYSQL_USERNAME
           valueFrom:
             secretKeyRef:
-              name: content-manager
-              key: device-server-mysql-username
+              name: device-server
+              key: mysql-username
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: content-manager
-              key: device-server-mysql-password
+              name: device-server
+              key: mysql-password
         - name: LOGIN_SERVER_HOST
-          value: https://login.api.twinsight.media
+          value: http://login-server.twinsight.svc.cluster.local:8080
         - name: LOCATION_SERVER_HOST
-          value: https://location.api.twinsight.media
+          value: http://location-server.twinsight.svc.cluster.local:8080
 ---
 apiVersion: v1
 kind: Service
@@ -70,7 +70,7 @@ spec:
   tls:
   - hosts:
     - device.api.twinsight.media
-    secretName: device-api-twinsight-media-tls
+    secretName: device-api-twinsight-media
   rules:
   - host: device.api.twinsight.media
     http:

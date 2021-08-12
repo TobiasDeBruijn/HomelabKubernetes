@@ -30,18 +30,18 @@ spec:
         - name: MYSQL_USERNAME
           valueFrom:
             secretKeyRef:
-              name: content-manager
-              key: login-server-mysql-username
+              name: login-server
+              key: mysql-username
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: content-manager
-              key: login-server-mysql-password
+              name: login-server
+              key: mysql-password
         - name: PASSWORD_PEPPER
           valueFrom:
             secretKeyRef:
-              name: content-manager
-              key: login-server-password-pepper
+              name: login-server
+              key: password-pepper
 ---
 apiVersion: v1
 kind: Service
@@ -69,7 +69,7 @@ spec:
   tls:
   - hosts:
     - login.api.twinsight.media
-    secretName: login-api-twinsight-media-tls
+    secretName: login-api-twinsight-media
   rules:
   - host: login.api.twinsight.media
     http:
