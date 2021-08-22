@@ -1,3 +1,16 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: media-array21-dev
+  namespace: external-names
+spec:
+  secretName: media-array21-dev
+  dnsNames:
+  - media.array21.dev
+  issuerRef:
+    name: letsencrypt-array21
+    kind: ClusterIssuer
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -17,12 +30,11 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-buffering: "off"    
-    cert-manager.io/cluster-issuer: 'letsencrypt-array21'
 spec:
   tls:
   - hosts:
     - media.array21.nl
-    secretName: media-array21-tls
+    secretName: media-array21-dev
   rules:
   - host: media.array21.dev
     http:
@@ -42,7 +54,6 @@ metadata:
   namespace: external-names
   annotations:
     kubernetes.io/ingress.class: "nginx"
-    cert-manager.io/cluster-issuer: "letsencrypt-array21"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
     cert-manager.io/cluster-issuer: 'letsencrypt-array21'
@@ -53,7 +64,7 @@ spec:
   tls:
   - hosts:
     - media.array21.nl
-    secretName: media-array21-tls
+    secretName: media-array21-dev
   rules:
   - host: media.array21.dev
     http:
