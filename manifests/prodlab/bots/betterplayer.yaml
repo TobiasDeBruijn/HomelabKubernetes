@@ -1,52 +1,56 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: betterplayer
+  name: betterplayer-bot
+  namespace: prodlab
   labels:
-    app: betterplayer
+    app: betterplayer-bot
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: betterplayer
+      app: betterplayer-bot
   template:
     metadata:
       labels:
-        app: betterplayer
+        app: betterplayer-bot
     spec:
       containers:
-      - name: betterplayer
+      - name: betterplayer-bot
         imagePullPolicy: Always
-        image: docker-registry.k8s.array21.dev/betterplayer:latest
+        image: docker-registry.k8s.array21.dev/betterplayer-bot:latest
         env:
-        - name: "BOT_TOKEN"
+        - name: BOT_TOKEN
           valueFrom:
             secretKeyRef:
-              name: betterplayer 
-              key: BOT_TOKEN
-        - name: "USE_GOOGLE_API"
+              name: betterplayer-bot 
+              key: bot-token
+        - name: USE_GOOGLE_API
           value: "true"
-        - name: "GOOGLE_API_KEY"
+        - name: GOOGLE_API_KEY
           valueFrom:
             secretKeyRef:
-              name: betterplayer
-              key: GOOGLE_API_KEY
-        - name: "DB_HOST"
-          value: "mariadb.intern.array21.dev"
-        - name: "DB_NAME"
-          value: "betterplayer"
-        - name: "DB_USERNAME"
+              name: betterplayer-bot
+              key: google-api-key
+        - name: DB_HOST
+          value: mariadb.intern.array21.dev
+        - name: DB_DATABASE
           valueFrom:
             secretKeyRef:
-              name: betterplayer
-              key: DB_USERNAME
-        - name: "DB_PASSWORD"
+              name: betterplayer-bot
+              key: db-database
+        - name: DB_USERNAME
           valueFrom:
             secretKeyRef:
-              name: betterplayer
-              key: DB_PASSWORD
-        - name: "KSOFT_API_TOKEN"
+              name: betterplayer-bot
+              key: db-username
+        - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: betterplayer
-              key: KSOFT_API_TOKEN
+              name: betterplayer-bot
+              key: db-password
+        - name: KSOFT_API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: betterplayer-bot
+              key: ksoft-api-token
