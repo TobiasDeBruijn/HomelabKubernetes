@@ -1,33 +1,8 @@
 apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: modules
-spec:
-  capacity:
-    storage: 5G
-  accessModes:
-    - ReadWriteMany
-  nfs:
-    path: /storage-pool/k8s/netherlandsbot-core
-    server: storage-ssd.intern.array21.dev
-  persistentVolumeReclaimPolicy: Retain
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: modules
-spec:
-  volumeName: modules
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 5G
----
-apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: netherlandsbot-core-config
+  namespace: prodlab
+  name: netherlandsbot-config
 data:
   hoi-module: |
     channelId: 811307775396413481
@@ -41,44 +16,42 @@ data:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: netherlandsbot-core
+  name: netherlandsbot
+  namespace: prodlab
   labels:
-    app: netherlandsbot-core
+    app: netherlandsbot
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: netherlandsbot-core
+      app: netherlandsbot
   template:
     metadata:
       labels:
-        app: netherlandsbot-core
+        app: netherlandsbot
     spec:
       containers:
-      - name: netherlandsbot-core
-        image: docker-registry.k8s.array21.dev/netherlandsbot-core:latest
+      - name: netherlandsbot
+        image: docker-registry.k8s.array21.dev/netherlandsbot:latest
         volumeMounts:
         - name: config
           mountPath: /config
         - name: module-config
           mountPath: /moduleconfig/
-        - name: modules
-          mountPath: /modules
+        - name: core-config
+          mountPath:
       volumes:
       - name: config
         secret:
-          secretName: netherlandsbot-core
+          secretName: netherlandsbot
           items:
           - key: config
             path: config.yml
       - name: module-config
         configMap:
-          name: netherlandsbot-core-config
+          name: module-config
           items:
           - key: tcp-module
             path: TCPModule.yml
           - key: hoi-module
-            path: HoiModule.yml  
-      - name: modules
-        persistentVolumeClaim:
-          claimName: modules
+            path: HoiModule.yml

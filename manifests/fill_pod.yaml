@@ -16,7 +16,7 @@ spec:
     volumeAttributes:
       numberOfReplicas: '3'
       staleReplicaTimeout: '2880'
-    volumeHandle: catexplorer
+    volumeHandle: bookstack
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
