@@ -42,6 +42,26 @@ spec:
             secretKeyRef:
               name: reporterr
               key: pg-password
+        - name: MYSQL_HOST
+          valueFrom:
+            secretKeyRef:
+              name: reporterr
+              key: mysql-host
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: reporterr
+              key: mysql-database
+        - name: MYSQL_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: reporterr
+              key: mysql-username
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: reporterr
+              key: mysql-password
         ports:
         - containerPort: 8080
 ---

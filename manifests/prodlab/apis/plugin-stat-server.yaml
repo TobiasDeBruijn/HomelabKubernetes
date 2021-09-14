@@ -6,7 +6,7 @@ metadata:
   labels:
     app: plugin-stat-server
 spec:
-  replicas: 6
+  replicas: 1
   selector:
     matchLabels:
       app: plugin-stat-server
@@ -18,30 +18,9 @@ spec:
       containers:
       - name: plugin-stat-server
         imagePullPolicy: Always
-        image: docker-registry.k8s.array21.dev/plugin-stat-server:latest
+        image: docker-registry.k8s.array21.dev/plugin-stat-server:v2
         ports:
         - containerPort: 8080
-        env:
-        - name: "MYSQL_HOST"
-          valueFrom:
-            secretKeyRef:
-              name: plugin-stat-server
-              key: MYSQL_HOST
-        - name: "MYSQL_DATABASE"
-          valueFrom:
-            secretKeyRef:
-              name: plugin-stat-server
-              key: MYSQL_DATABASE
-        - name: "MYSQL_USERNAME"
-          valueFrom:
-            secretKeyRef:
-              name: plugin-stat-server
-              key: MYSQL_USERNAME
-        - name: "MYSQL_PASSWORD"
-          valueFrom:
-            secretKeyRef:
-              name: plugin-stat-server
-              key: MYSQL_PASSWORD
 ---
 apiVersion: v1
 kind: Service
@@ -67,7 +46,7 @@ metadata:
 spec:
   tls:
   - hosts:
-    - plugin-stats.k8s.array21.dev
+    - plugin-stat.k8s.array21.dev
     secretName: plugin-stat-k8s-array21-dev
   rules:
   - host: plugin-stat.k8s.array21.dev

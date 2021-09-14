@@ -42,6 +42,10 @@ spec:
             secretKeyRef:
               name: login-server
               key: password-pepper
+        - name: EMAIL_SENDER
+          value: "noreply@signin.array21.dev"
+        - name: FRONTEND_HOST
+          value: "https://content-manager.staging.twinsight.media"
 ---
 apiVersion: v1
 kind: Service

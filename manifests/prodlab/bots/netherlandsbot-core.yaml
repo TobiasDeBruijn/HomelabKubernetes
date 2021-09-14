@@ -9,9 +9,6 @@ data:
     notHoiMessages:
     - "Moet jij eens goed luisteren stuk stront dat je bent. Wij staan hier alleen 'Hoi' toe!"
     - "Oi vieze tering lijer. Kun je niet lezen ofzo? Alleen 'Hoi' hier."
-  tcp-module: |
-    port: 5555
-    healthCheckInterval: 60
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -38,8 +35,11 @@ spec:
           mountPath: /config
         - name: module-config
           mountPath: /moduleconfig/
-        - name: core-config
-          mountPath:
+        env:
+        - name: REPOS
+          value: 'https://github.com/Netherlandschat/HoiModule.git,https://github.com/Netherlandschat/FruitModule.git,https://github.com/Netherlandschat/DickMeasuringContest.git'
+        - name: RUST_LOG
+          value: TRACE
       volumes:
       - name: config
         secret:
@@ -49,9 +49,7 @@ spec:
             path: config.yml
       - name: module-config
         configMap:
-          name: module-config
+          name: netherlandsbot-config
           items:
-          - key: tcp-module
-            path: TCPModule.yml
           - key: hoi-module
             path: HoiModule.yml

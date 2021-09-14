@@ -21,7 +21,6 @@ spec:
         image: docker-registry.k8s.array21.dev/mrfriendly-dashboard:latest
         ports:
         - containerPort: 80
-          name: web
 ---
 apiVersion: v1
 kind: Service
@@ -33,7 +32,6 @@ spec:
     app: dashboard
   ports:
   - protocol: TCP
-    name: web
     port: 80
     targetPort: 80
 ---

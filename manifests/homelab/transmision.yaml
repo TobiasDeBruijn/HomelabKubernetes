@@ -79,9 +79,14 @@ spec:
       labels:
         app: transmission
     spec:
+      dnsPolicy: "None"
+      dnsConfig:
+        nameservers:
+        - 1.1.1.1
+        - 9.9.9.9
       containers:
       - name: transmission
-        image: "haugene/transmission-openvpn:3.7"
+        image: "haugene/transmission-openvpn:3.7.1"
         ports:
         - containerPort: 9091
         securityContext:
@@ -108,13 +113,13 @@ spec:
         - name: "CREATE_TUN_DEVICE"
           value: "true"
         - name: "LOCAL_NETWORK"
-          value: "10.0.0.0/8,172.16.0.0/12"
+          value: "10.10.0.0/16,172.17.0.0/16,10.80.4.0/22"
         - name: "WEBPROXY_ENABLED"
           value: "false"
         - name: "OPENVPN_OPTS"
           value: "--inactive 3600 --ping 10 --ping-exit 60"
         - name: "TRANSMISSION_WEB_UI"
-          value: "flood-for-transmission"
+          value: "transmission-web-control"
         - name: "TRANSMISSION_INCOMPLETE_DIR_ENABLED"
           value: "false"
         - name: "TRANSMISSION_IDLE_SEEDING_LIMIT"
