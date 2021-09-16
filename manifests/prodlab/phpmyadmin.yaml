@@ -50,7 +50,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: "letsencrypt-array21"
-#    nginx.ingress.kubernetes.io/whitelist-source-range: "10.10.0.0/16"
+    nginx.ingress.kubernetes.io/whitelist-source-range: "10.10.0.0/16"
     nginx.ingress.kubernetes.io/proxy-body-size: 150m
 
 spec:
