@@ -22,6 +22,8 @@ spec:
         ports:
         - containerPort: 80
           name: web
+        - name: AUTHLANDER_HOST
+          value: "https://authlander.intern.mrfriendly.nl"
 ---
 apiVersion: v1
 kind: Service
