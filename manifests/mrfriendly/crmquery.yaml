@@ -22,8 +22,10 @@ spec:
         ports:
         - containerPort: 80
         env:
-        - name: "HOST"
+        - name: HOST
           value: "https://crmquery-api.intern.mrfriendly.nl"
+        - name: AUTHLANDER_HOST
+          value: "https://authlander.intern.mrfriendly.nl"
         
       - name: api
         imagePullPolicy: Always
@@ -33,7 +35,7 @@ spec:
         env:
         - name: ESPO_URL
           value: "https://espocrm.intern.mrfriendly.nl"
-        - name: API_KEY
+        - name: ESPO_API_KEY
           valueFrom:
             secretKeyRef:
               name: crmquery
@@ -43,6 +45,8 @@ spec:
             secretKeyRef:
               name: crmquery
               key: secret-key
+        - name: AUTHLANDER_HOST
+          value: "https://authlander.intern.mrfriendly.nl"
 ---
 apiVersion: v1
 kind: Service

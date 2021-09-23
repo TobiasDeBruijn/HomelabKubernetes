@@ -64,6 +64,11 @@ spec:
               key: mysql-password
         ports:
         - containerPort: 8080
+      - name: reporterr-ui
+        imagePullPolicy: Always
+        image: docker-registry.k8s.array21.dev/mrfriendly-reporterr-ui:latest
+        ports:
+        - containerPort: 80
 ---
 apiVersion: v1
 kind: Service
@@ -74,9 +79,14 @@ spec:
   selector:
     app: reporterr
   ports:
-  - protocol: TCP
+  - name: api
+    protocol: TCP
     port: 8080
     targetPort: 8080
+  - name: ui
+    protocol: TCP
+    port: 80
+    targetPort: 80
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -102,3 +112,28 @@ spec:
             name: reporterr
             port:
               number: 8080
+--- 
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: reporterr-ui
+  namespace: mrfriendly
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-mrfriendly"
+spec:
+  tls:
+  - hosts:
+    - reporterr.intern.mrfriendly.nl
+    secretName: reporterr-intern-mrfriendly-nl
+  rules:
+  - host: reporterr.intern.mrfriendly.nl
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: reporterr
+            port:
+              number: 80

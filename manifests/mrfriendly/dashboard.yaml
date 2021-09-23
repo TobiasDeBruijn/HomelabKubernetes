@@ -21,6 +21,10 @@ spec:
         image: docker-registry.k8s.array21.dev/mrfriendly-dashboard:latest
         ports:
         - containerPort: 80
+          name: web
+        env:
+        - name: AUTHLANDER_HOST
+          value: "https://authlander.intern.mrfriendly.nl"
 ---
 apiVersion: v1
 kind: Service

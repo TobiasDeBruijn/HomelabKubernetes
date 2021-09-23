@@ -1,76 +1,43 @@
 apiVersion: v1
-kind: Secret
-metadata:
-  name: calibre-web
-  namespace: default
-type: "kubernetes.io/iscsi-chap"
-data:
-  node.session.auth.username: "Y2FsaWJyZQo="
-  node.session.auth.password: "VXNENEw2eGdIWHJuakdqZGUzSnJYMzh3TWU5clM2czgK"
----
-apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: calibre-web
+  namespace: homelab
 spec:
   capacity:
-    storage: 10G
+    storage: 1Gi
+  volumeMode: Filesystem
   accessModes:
   - ReadWriteMany
-  iscsi:
-    targetPortal: 192.168.2.4:3260
-    iqn: 'iqn.2021-05.intern.array21.dev:calibre'
-    lun: 2
-    fsType: 'ext4'
-    readOnly: false
-    chapAuthDiscovery: true
-    chapAuthSession: true
-    secretRef:
-      name: calibre-web
   persistentVolumeReclaimPolicy: Retain
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: calibre-web-books
-spec:
-  capacity:
-    storage: 25G
-  accessModes:
-    - ReadWriteMany
-  nfs:
-    path: /storage-pool/k8s/calibre/books
-    server: storage-ssd.intern.array21.dev
-  persistentVolumeReclaimPolicy: Retain
+  storageClassName: longhorn-static
+  csi:
+    driver: driver.longhorn.io
+    fsType: ext4
+    volumeAttributes:
+      numberOfReplicas: '3'
+      staleReplicaTimeout: '2880'
+    volumeHandle: calibre-web
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: calibre-web
+  namespace: homelab
 spec:
   volumeName: calibre-web
   accessModes:
   - ReadWriteMany
   resources:
     requests:
-      storage: 10G
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: calibre-web-books
-spec:
-  volumeName: calibre-web-books
-  accessModes:
-  - ReadWriteMany
-  resources:
-    requests:
-      storage: 25G
+      storage: 1G
+  storageClassName: longhorn-static
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: calibre-web
+  namespace: homelab
   labels:
     app: calibre-web
 spec:
@@ -105,12 +72,13 @@ spec:
           claimName: calibre-web
       - name: books
         persistentVolumeClaim:
-          claimName: calibre-web-books
+          claimName: calibre-books
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: calibre-web
+  namespace: homelab
 spec:
   selector:
     app: calibre-web
@@ -124,15 +92,18 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: calibre-web
+  namespace: homelab
   annotations:
-    kubernets.io/ingress.class: "nginx"
+    kubernetes.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.iio/proxy-body-size: 150m
-#    nginx.ingress.kubernetes.io/rewrite-target: /calibre-web/$1
+#    nginx.ingress.kubernetes.io/rewrite-target: /calibre-web/$0
+    cert-manager.io/cluster-issuer: "letsencrypt-array21"
+
 spec:
   tls:
   - hosts:
     - calibre-web.k8s.array21.dev
-    secretName: array21-tls
+    secretName: calibre-web-k8s-array21-dev
   rules:
   - host: calibre-web.k8s.array21.dev
     http:
