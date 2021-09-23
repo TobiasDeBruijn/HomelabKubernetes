@@ -22,6 +22,7 @@ spec:
         ports:
         - containerPort: 80
           name: web
+        env:
         - name: AUTHLANDER_HOST
           value: "https://authlander.intern.mrfriendly.nl"
 ---

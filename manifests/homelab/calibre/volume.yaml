@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: calibre-books
+  namespace: homelab
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: longhorn-static
+  csi:
+    driver: driver.longhorn.io
+    fsType: ext4
+    volumeAttributes:
+      numberOfReplicas: '3'
+      staleReplicaTimeout: '2880'
+    volumeHandle: calibre-books
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: calibre-books
+  namespace: homelab
+spec:
+  volumeName: calibre-books
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 5G
+  storageClassName: longhorn-static
