@@ -15,6 +15,7 @@ spec:
       labels:
         app: skinfixer-api
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: skinfixer-api
         imagePullPolicy: Always

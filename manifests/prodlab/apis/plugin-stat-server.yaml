@@ -6,7 +6,7 @@ metadata:
   labels:
     app: plugin-stat-server
 spec:
-  replicas: 6
+  replicas: 1
   selector:
     matchLabels:
       app: plugin-stat-server
@@ -15,6 +15,7 @@ spec:
       labels:
         app: plugin-stat-server
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: plugin-stat-server
         imagePullPolicy: Always

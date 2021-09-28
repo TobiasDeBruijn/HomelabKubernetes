@@ -50,6 +50,7 @@ spec:
       labels:
         app: docker-registry
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: docker-registry
         image: registry:2.7.1

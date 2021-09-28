@@ -30,6 +30,7 @@ spec:
       labels:
         app: netherlandsbot
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: netherlandsbot
         image: docker-registry.k8s.array21.dev/netherlandsbot:latest
@@ -38,8 +39,6 @@ spec:
           mountPath: /config
         - name: module-config
           mountPath: /moduleconfig/
-        - name: core-config
-          mountPath:
       volumes:
       - name: config
         secret:
@@ -49,7 +48,7 @@ spec:
             path: config.yml
       - name: module-config
         configMap:
-          name: module-config
+          name: netherlandsbot-config
           items:
           - key: tcp-module
             path: TCPModule.yml

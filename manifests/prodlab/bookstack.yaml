@@ -50,6 +50,7 @@ spec:
       labels:
         app: bookstack
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: bookstack
         image: linuxserver/bookstack

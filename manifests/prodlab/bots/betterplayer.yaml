@@ -15,6 +15,7 @@ spec:
       labels:
         app: betterplayer-bot
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: betterplayer-bot
         imagePullPolicy: Always
