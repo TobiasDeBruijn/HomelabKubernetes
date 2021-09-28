@@ -15,6 +15,7 @@ spec:
       labels:
         app: phpmyadmin
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: phpmyadmin
         image: phpmyadmin/phpmyadmin

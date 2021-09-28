@@ -27,6 +27,7 @@ spec:
       labels:
         app: netherlandsbot
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: netherlandsbot
         image: docker-registry.k8s.array21.dev/netherlandsbot:latest

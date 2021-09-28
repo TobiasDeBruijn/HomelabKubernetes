@@ -44,6 +44,7 @@ spec:
       labels:
         app: reactioner-bot
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: reactioner-bot
         imagePullPolicy: Always

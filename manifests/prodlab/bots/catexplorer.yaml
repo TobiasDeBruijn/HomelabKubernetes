@@ -50,6 +50,7 @@ spec:
       labels:
         app: catexplorer
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: catexplorer
         image: thedutchmc/catexplorer:latest

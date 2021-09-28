@@ -15,6 +15,7 @@ spec:
       labels:
         app: plugin-stat-server
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: plugin-stat-server
         imagePullPolicy: Always
