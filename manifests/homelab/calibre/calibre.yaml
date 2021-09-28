@@ -50,6 +50,7 @@ spec:
       labels:
         app: calibre
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: calibre
         image: linuxserver/calibre

@@ -49,6 +49,7 @@ spec:
       labels:
         app: homer
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: homer
         image: b4bz/homer:latest

@@ -108,6 +108,7 @@ spec:
       labels:
         app: radarr
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: radarr
         image: linuxserver/radarr

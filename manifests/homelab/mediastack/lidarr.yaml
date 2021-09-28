@@ -108,6 +108,7 @@ spec:
       labels:
         app: lidarr
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: lidarr
         image: linuxserver/lidarr

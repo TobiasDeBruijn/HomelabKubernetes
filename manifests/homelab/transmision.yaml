@@ -84,6 +84,7 @@ spec:
         nameservers:
         - 1.1.1.1
         - 9.9.9.9
+      automountServiceAccountToken: false
       containers:
       - name: transmission
         image: "haugene/transmission-openvpn:3.7.1"

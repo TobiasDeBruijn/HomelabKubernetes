@@ -109,6 +109,7 @@ spec:
       labels:
         app: sonarr
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: sonarr
         image: linuxserver/sonarr

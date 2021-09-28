@@ -108,6 +108,7 @@ spec:
       labels:
         app: bazarr
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: bazarr
         image: linuxserver/bazarr

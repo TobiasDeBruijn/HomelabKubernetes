@@ -50,6 +50,7 @@ spec:
       labels:
         app: jackett
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: jackett
         image: linuxserver/jackett
