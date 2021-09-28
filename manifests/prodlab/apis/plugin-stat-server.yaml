@@ -19,9 +19,11 @@ spec:
       containers:
       - name: plugin-stat-server
         imagePullPolicy: Always
-        image: docker-registry.k8s.array21.dev/plugin-stat-server:latest
+        image: docker-registry.k8s.array21.dev/plugin-stat-server:v2
         ports:
         - containerPort: 8080
+<<<<<<< HEAD
+=======
         env:
         - name: "MYSQL_HOST"
           valueFrom:
@@ -43,6 +45,7 @@ spec:
             secretKeyRef:
               name: plugin-stat-server
               key: mysql-password
+>>>>>>> 3ee5a24919bec91caadf6de2efdf817cf4769e49
 ---
 apiVersion: v1
 kind: Service
@@ -68,8 +71,13 @@ metadata:
 spec:
   tls:
   - hosts:
+<<<<<<< HEAD
+    - plugin-stat.k8s.array21.dev
+    secretName: plugin-stat-k8s-array21-dev
+=======
     - plugin-stats.k8s.array21.dev
     secretName: plugin-stats-k8s-array21-dev
+>>>>>>> 3ee5a24919bec91caadf6de2efdf817cf4769e49
   rules:
   - host: plugin-stat.k8s.array21.dev
     http:

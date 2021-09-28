@@ -39,6 +39,11 @@ spec:
               key: mysql-password
         - name: LOGIN_SERVER_HOST
           value: http://login-server.twinsight.svc.cluster.local:8080
+        - name: DISCORD_WEBHOOK
+          valueFrom:
+            secretKeyRef:
+              name: content-server
+              key: discord-webhook
 ---
 apiVersion: v1
 kind: Service

@@ -21,30 +21,32 @@ spec:
         image: docker-registry.k8s.array21.dev/mrfriendly-crmquery-frontend
         ports:
         - containerPort: 80
-          name: web
         env:
-        - name: "HOST"
+        - name: HOST
           value: "https://crmquery-api.intern.mrfriendly.nl"
+        - name: AUTHLANDER_HOST
+          value: "https://authlander.intern.mrfriendly.nl"
         
       - name: api
         imagePullPolicy: Always
         image: docker-registry.k8s.array21.dev/mrfriendly-crmquery-api
         ports:
         - containerPort: 8080
-          name: api
         env:
-        - name: "ESPO_URL"
+        - name: ESPO_URL
           value: "https://espocrm.intern.mrfriendly.nl"
-        - name: "API_KEY"
+        - name: ESPO_API_KEY
           valueFrom:
             secretKeyRef:
               name: crmquery
-              key: API_KEY
-        - name: "SECRET_KEY"
+              key: api-key
+        - name: SECRET_KEY
           valueFrom:
             secretKeyRef:
               name: crmquery
-              key: SECRET_KEY
+              key: secret-key
+        - name: AUTHLANDER_HOST
+          value: "https://authlander.intern.mrfriendly.nl"
 ---
 apiVersion: v1
 kind: Service
