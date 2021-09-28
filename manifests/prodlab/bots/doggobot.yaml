@@ -50,6 +50,7 @@ spec:
       labels:
         app: doggobot
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: doggobot
         image: docker-registry.k8s.array21.dev/doggobot:latest

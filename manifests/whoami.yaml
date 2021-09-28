@@ -12,6 +12,7 @@ spec:
       labels:
         app: whoami
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: whoami
         image: containous/whoami
