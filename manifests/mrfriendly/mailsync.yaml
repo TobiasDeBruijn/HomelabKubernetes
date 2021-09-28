@@ -15,6 +15,7 @@ spec:
       labels:
         app: mailsync
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: mailsync-api
         image: docker-registry.k8s.array21.dev/mrfriendly-mailsync-api:latest

@@ -15,6 +15,7 @@ spec:
       labels:
         app: authlander
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: authlander
         image: docker-registry.k8s.array21.dev/authlander:latest

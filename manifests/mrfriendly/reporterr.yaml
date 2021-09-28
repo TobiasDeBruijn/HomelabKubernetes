@@ -15,6 +15,7 @@ spec:
       labels:
         app: reporterr
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: reporterr
         imagePullPolicy: Always

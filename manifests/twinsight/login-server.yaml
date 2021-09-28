@@ -15,6 +15,7 @@ spec:
       labels: 
         app: login-server
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: login-server
         imagePullPolicy: Always

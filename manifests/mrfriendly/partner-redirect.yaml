@@ -15,6 +15,7 @@ spec:
       labels:
         app: partner-redirect
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: api
         imagePullPolicy: Always

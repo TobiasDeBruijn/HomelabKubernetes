@@ -15,6 +15,7 @@ spec:
       labels:
         app: dashboard
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: dashboard
         imagePullPolicy: Always

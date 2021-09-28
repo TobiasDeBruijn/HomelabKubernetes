@@ -15,6 +15,7 @@ spec:
       labels: 
         app: content-server
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: content-server
         imagePullPolicy: Always

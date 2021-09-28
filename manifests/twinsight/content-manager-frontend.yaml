@@ -15,6 +15,7 @@ spec:
       labels: 
         app: content-manager-frontend
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: content-manager-frontend
         imagePullPolicy: Always

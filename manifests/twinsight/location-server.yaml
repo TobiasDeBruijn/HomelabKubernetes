@@ -15,6 +15,7 @@ spec:
       labels: 
         app: location-server
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: location-server
         imagePullPolicy: Always

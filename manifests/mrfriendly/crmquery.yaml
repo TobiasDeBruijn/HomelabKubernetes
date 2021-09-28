@@ -15,6 +15,7 @@ spec:
       labels:
         app: crmquery
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: frontend
         imagePullPolicy: Always

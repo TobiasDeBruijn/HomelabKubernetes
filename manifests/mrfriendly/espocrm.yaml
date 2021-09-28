@@ -50,6 +50,7 @@ spec:
       labels:
         app: espocrm
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: espocrm
         imagePullPolicy: Always

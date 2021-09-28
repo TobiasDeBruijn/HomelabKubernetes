@@ -15,6 +15,7 @@ spec:
       labels: 
         app: device-server
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: device-server
         imagePullPolicy: Always
