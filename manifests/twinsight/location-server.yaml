@@ -19,7 +19,7 @@ spec:
       containers:
       - name: location-server
         imagePullPolicy: Always
-        image: docker-registry.k8s.array21.dev/twinsight-location-server:latest
+        image: docker-registry.k8s.array21.dev/twinsight-location-server:0.1.0
         ports:
         - containerPort: 8080
           name: api

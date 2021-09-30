@@ -5,9 +5,7 @@ metadata:
   namespace: drone
 spec:
   hard:
-    limits.cpu: "2" 
-    limits.memory: 2Gi 
-    limits.ephemeral-storage: 4Gi
+    requests.ephemeral-storage: 12Gi
 ---
 apiVersion: v1
 kind: LimitRange

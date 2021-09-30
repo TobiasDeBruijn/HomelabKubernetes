@@ -4,22 +4,22 @@ metadata:
   name: user-server
   namespace: twinsight
   labels:
-    app: user-server
+    app.kubernetes.io/name: user-server
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: user-server
+      app.kubernetes.io/name: user-server
   template:
     metadata:
       labels: 
-        app: user-server
+        app.kubernetes.io/name: user-server
     spec:
       automountServiceAccountToken: false
       containers:
       - name: user-server
         imagePullPolicy: Always
-        image: docker-registry.k8s.array21.dev/twinsight-user-server:latest
+        image: docker-registry.k8s.array21.dev/twinsight-user-server:0.1.0
         ports:
         - containerPort: 8080
           name: api
@@ -48,7 +48,7 @@ metadata:
   namespace: twinsight
 spec:
   selector:
-    app: user-server
+    app.kubernetes.io/name: user-server
   ports:
   - protocol: TCP
     name: api

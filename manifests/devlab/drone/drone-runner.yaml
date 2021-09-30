@@ -16,6 +16,10 @@ spec:
         app.kubernetes.io/name: drone-runner
     spec:
       serviceAccountName: drone
+      dnsPolicy: None
+      dnsConfig:
+        nameservers:
+        - 10.10.0.1
       containers:
       - name: runner
         image: drone/drone-runner-kube:latest

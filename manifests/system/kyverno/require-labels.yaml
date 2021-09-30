@@ -18,6 +18,7 @@ spec:
         - cert-manager
         - longhorn-system
         - cilium-test
+        - drone
     validate:
       message: "label 'app.kubernetes.io/name' is required"
       pattern:

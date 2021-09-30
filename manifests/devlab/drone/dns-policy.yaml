@@ -1,0 +1,23 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: set-dns-policy-drone
+spec:
+  rules:
+  - name: set-dns-policy-drone
+    match:
+      resources:
+        kinds:
+        - Pod
+        names:
+        - "drone-*"
+        namespaces:
+        - drone    
+    
+    mutate:
+      overlay:
+        spec:
+          dnsPolicy: None
+          dnsConfig:
+            nameservers:
+            - 10.10.0.1

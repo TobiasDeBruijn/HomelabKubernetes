@@ -4,22 +4,22 @@ metadata:
   name: login-server
   namespace: twinsight
   labels:
-    app: login-server
+    app.kubernetes.io/name: login-server
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: login-server
+      app.kubernetes.io/name: login-server
   template:
     metadata:
       labels: 
-        app: login-server
+        app.kubernetes.io/name: login-server
     spec:
       automountServiceAccountToken: false
       containers:
       - name: login-server
         imagePullPolicy: Always
-        image: docker-registry.k8s.array21.dev/twinsight-login-server:latest
+        image: docker-registry.k8s.array21.dev/twinsight-login-server:0.1.0
         ports:
         - containerPort: 8080
           name: api
@@ -55,7 +55,7 @@ metadata:
   namespace: twinsight
 spec:
   selector:
-    app: login-server
+    app.kubernetes.io/name: login-server
   ports:
   - protocol: TCP
     name: api
