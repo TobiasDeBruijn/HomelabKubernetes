@@ -4,16 +4,16 @@ metadata:
   name: device-server
   namespace: twinsight
   labels:
-    app: device-server
+    app.kubernets.io/name: device-server
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: device-server
+      app.kubernetes.io/name: device-server
   template:
     metadata:
       labels: 
-        app: device-server
+        app.kubernetes.io/name: device-server
     spec:
       automountServiceAccountToken: false
       containers:
@@ -52,7 +52,7 @@ metadata:
   namespace: twinsight
 spec:
   selector:
-    app: device-server
+    app.kubernetes.io/name: device-server
   ports:
   - protocol: TCP
     name: api

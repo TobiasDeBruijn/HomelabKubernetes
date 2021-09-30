@@ -4,16 +4,16 @@ metadata:
   name: content-server
   namespace: twinsight
   labels:
-    app: content-server
+    app.kubernetes.io/name: content-server
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: content-server
+      app.kubernetes.io/name: content-server
   template:
     metadata:
       labels: 
-        app: content-server
+        app.kubernetes.io/name: content-server
     spec:
       automountServiceAccountToken: false
       containers:
@@ -53,7 +53,7 @@ metadata:
   namespace: twinsight
 spec:
   selector:
-    app: content-server
+    app.kubernetes.io/name: content-server
   ports:
   - protocol: TCP
     name: api
