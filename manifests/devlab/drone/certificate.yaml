@@ -1,0 +1,23 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: drone-k8s-array21-dev
+  namespace: drone
+spec:
+  secretName: drone-k8s-array21-dev
+  duration: 2160h #90d
+  renewBefore: 360h #15d
+  subject:
+    organizations:
+    - array21
+  isCA: false
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 2048
+  dnsNames:
+  - drone.k8s.array21.dev
+  issuerRef:
+    name: letsencrypt-array21
+    kind: ClusterIssuer
+
