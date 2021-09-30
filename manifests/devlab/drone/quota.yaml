@@ -19,5 +19,5 @@ spec:
   - default:
       memory: 512Mi
       cpu: 500m
-      ephemeral-storage: 128Mi
+      ephemeral-storage: 2Gi
     type: Container

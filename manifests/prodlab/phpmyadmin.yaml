@@ -4,16 +4,16 @@ metadata:
   name: phpmyadmin
   namespace: prodlab
   labels:
-    app: phpmyadmin
+    app.kubernetes.io/name: phpmyadmin
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: phpmyadmin
+      app.kubernetes.io/name: phpmyadmin
   template:
     metadata:
       labels:
-        app: phpmyadmin
+        app.kubernetes.io/name: phpmyadmin
     spec:
       automountServiceAccountToken: false
       containers:
@@ -36,7 +36,7 @@ metadata:
 spec:
   type: LoadBalancer
   selector:
-    app: phpmyadmin
+    app.kubernetes.io/name: phpmyadmin
   ports:
   - protocol: TCP
     name: web
@@ -51,7 +51,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: "letsencrypt-array21"
-    nginx.ingress.kubernetes.io/whitelist-source-range: "10.10.0.0/16"
+#    nginx.ingress.kubernetes.io/whitelist-source-range: "10.10.0.0/16"
     nginx.ingress.kubernetes.io/proxy-body-size: 150m
 
 spec:

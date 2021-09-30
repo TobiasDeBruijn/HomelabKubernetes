@@ -4,16 +4,16 @@ metadata:
   name: drone-runner
   namespace: drone
   labels:
-    app: drone-runner
+    app.kubernetes.io/name: drone-runner
 spec:
-  replicas: 10
+  replicas: 1
   selector:
     matchLabels:
-      app: drone-runner
+      app.kubernetes.io/name: drone-runner
   template:
     metadata:
       labels:
-        app: drone-runner
+        app.kubernetes.io/name: drone-runner
     spec:
       serviceAccountName: drone
       containers:
@@ -25,7 +25,7 @@ spec:
         - name: "DRONE_SERVICE_ACCOUNT_DEFAULT"
           value: "drone"
         - name: "DRONE_RPC_HOST"
-          value: "drone.k8s.array21.dev:10443"
+          value: "drone.k8s.array21.dev"
         - name: "DRONE_RPC_PROTO"
           value: "https"
         - name: "DRONE_NAMESPACE_DEFAULT"
