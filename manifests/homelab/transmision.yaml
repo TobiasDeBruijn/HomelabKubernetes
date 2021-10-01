@@ -68,16 +68,16 @@ metadata:
   name: transmission
   namespace: homelab
   labels:
-    app: transmission
+    app.kubernetes.io/name: transmission
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: transmission
+      app.kubernetes.io/name: transmission
   template:
     metadata:
       labels:
-        app: transmission
+        app.kubernetes.io/name: transmission
     spec:
       dnsPolicy: "None"
       dnsConfig:
@@ -167,7 +167,7 @@ metadata:
   name: transmission
 spec:
   selector:
-    app: transmission
+    app.kubernetes.io/name: transmission
   ports:
   - protocol: TCP
     port: 9091
