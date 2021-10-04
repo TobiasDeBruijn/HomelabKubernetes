@@ -4,16 +4,15 @@ metadata:
   name: crmquery
   namespace: mrfriendly
   labels:
-    app: crmquery
+    app.kubernetes.io/name: crmquery
 spec:
-  replicas: 1
   selector:
     matchLabels:
-      app: crmquery
+      app.kubernetes.io/name: crmquery
   template:
     metadata:
       labels:
-        app: crmquery
+        app.kubernetes.io/name: crmquery
     spec:
       automountServiceAccountToken: false
       containers:
@@ -22,11 +21,6 @@ spec:
         image: docker-registry.k8s.array21.dev/mrfriendly-crmquery-frontend
         ports:
         - containerPort: 80
-        env:
-        - name: HOST
-          value: "https://crmquery-api.intern.mrfriendly.nl"
-        - name: AUTHLANDER_HOST
-          value: "https://authlander.intern.mrfriendly.nl"
         
       - name: api
         imagePullPolicy: Always
@@ -56,7 +50,7 @@ metadata:
   namespace: mrfriendly
 spec:
   selector:
-    app: crmquery
+    app.kubernetes.io/name: crmquery
   ports:
   - protocol: TCP
     name: web

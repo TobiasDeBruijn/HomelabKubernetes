@@ -4,20 +4,20 @@ metadata:
   name: partner-redirect
   namespace: mrfriendly
   labels:
-    app: partner-redirect
+    app.kubernetes.io/name: partner-redirect
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: partner-redirect
+      app.kubernetes.io/name: partner-redirect
   template:
     metadata:
       labels:
-        app: partner-redirect
+        app.kubernetes.io/name: partner-redirect
     spec:
       automountServiceAccountToken: false
       containers:
-      - name: api
+      - name: partner-redirect
         imagePullPolicy: Always
         image: docker-registry.k8s.array21.dev/mrfriendly-partner-redirect
         ports:
@@ -51,7 +51,7 @@ metadata:
   namespace: mrfriendly
 spec:
   selector:
-    app: partner-redirect
+    app.kubernetes.io/name: partner-redirect
   ports:
   - protocol: TCP
     port: 8080

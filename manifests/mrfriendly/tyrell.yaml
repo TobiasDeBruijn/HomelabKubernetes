@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tyrell
+  namespace: mrfriendly
+  labels:
+    app.kubernetes.io/name: tyrell
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tyrell
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: tyrell
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - name: tyrell
+        image: docker-registry.k8s.array21.dev/mrfriendly-smartbathroom-tyrell:latest
+        ports:
+        - name: api
+          containerPort: 8080
+        env:
+        - name: "MYSQL_HOST"
+          value: "mariadb.intern.array21.dev"
+        - name: "MYSQL_DATABASE"
+          value: "mrfriendly_prod_tyrell"
+        - name: "MYSQL_USERNAME"
+          valueFrom:
+            secretKeyRef:
+              name: tyrell
+              key: mysql-username
+        - name: "MYSQL_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              name: tyrell
+              key: mysql-password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tyrell
+  namespace: mrfriendly
+spec:
+  selector:
+    app.kubernetes.io/name: tyrell
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tyrell
+  namespace: mrfriendly
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-mrfriendly"
+spec:
+  tls:
+  - hosts:
+    - tyrell.api.mrfriendly.nl
+    secretName: tyrell-api-mrfriendly-nl
+  rules:
+  - host: tyrell.api.mrfriendly.nl
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: tyrell
+            port:
+              number: 8080
