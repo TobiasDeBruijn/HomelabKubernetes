@@ -97,16 +97,16 @@ metadata:
   name: lidarr
   namespace: homelab
   labels:
-    app: lidarr
+    app.kubernetes.io/name: lidarr
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: lidarr
+      app.kubernetes.io/name: lidarr
   template:
     metadata:
       labels:
-        app: lidarr
+        app.kubernetes.io/name: lidarr
     spec:
       automountServiceAccountToken: false
       containers:
@@ -139,7 +139,7 @@ metadata:
   namespace: homelab
 spec:
   selector:
-    app: lidarr
+    app.kubernetes.io/name: lidarr
   ports:
   - protocol: TCP
     port: 8686

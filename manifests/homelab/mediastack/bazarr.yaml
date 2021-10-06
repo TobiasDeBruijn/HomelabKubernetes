@@ -97,16 +97,16 @@ metadata:
   name: bazarr
   namespace: homelab
   labels:
-    app: bazarr
+    app.kubernetes.io/name: bazarr
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: bazarr
+      app.kubernetes.io/name: bazarr
   template:
     metadata:
       labels:
-        app: bazarr
+        app.kubernetes.io/name: bazarr
     spec:
       automountServiceAccountToken: false
       containers:
@@ -140,7 +140,7 @@ metadata:
   name: bazarr
 spec:
   selector:
-    app: bazarr
+    app.kubernetes.io/name: bazarr
   ports:
   - protocol: TCP
     name: webint

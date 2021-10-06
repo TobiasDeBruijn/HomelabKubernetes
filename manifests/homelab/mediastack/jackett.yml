@@ -39,16 +39,16 @@ metadata:
   namespace: homelab
   name: jackett
   labels:
-    app: jackett
+    app.kubernetes.io/name: jackett
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: jackett
+      app.kubernetes.io/name: jackett
   template:
     metadata:
       labels:
-        app: jackett
+        app.kubernetes.io/name: jackett
     spec:
       automountServiceAccountToken: false
       containers:
@@ -71,7 +71,7 @@ metadata:
   name: jackett
 spec:
   selector:
-    app: jackett
+    app.kubernetes.io/name: jackett
   ports:
   - protocol: TCP
     port: 9117

@@ -5,7 +5,7 @@ metadata:
   namespace: homelab
 spec:
   capacity:
-    storage: 500Mi
+    storage: 1000Mi
   volumeMode: Filesystem
   accessModes:
   - ReadWriteMany
@@ -29,7 +29,7 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: 500Mi
+      storage: 1000Mi
   volumeName: sonarr-data
   storageClassName: longhorn-static
 ---
@@ -98,16 +98,16 @@ metadata:
   name: sonarr
   namespace: homelab
   labels:
-    app: sonarr
+    app.kubernetes.io/name: sonarr
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: sonarr
+      app.kubernetes.io/name: sonarr
   template:
     metadata:
       labels:
-        app: sonarr
+        app.kubernetes.io/name: sonarr
     spec:
       automountServiceAccountToken: false
       containers:
@@ -140,7 +140,7 @@ metadata:
   namespace: homelab
 spec:
   selector:
-    app: sonarr
+    app.kubernetes.io/name: sonarr
   ports:
   - protocol: TCP
     port: 8989
@@ -153,7 +153,7 @@ metadata:
   namespace: homelab
   annotations:
     kubernetes.io/ingress.class: "nginx"
-#    nginx.ingress.kubernetes.io/whitelist-source-range: 10.10.0.0/16
+    nginx.ingress.kubernetes.io/whitelist-source-range: 10.10.0.0/16
     nginx.ingress.kubernetes.io/proxy-body-size: 150m
     cert-manager.io/cluster-issuer: letsencrypt-array21
 
