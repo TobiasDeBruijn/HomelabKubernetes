@@ -39,20 +39,22 @@ metadata:
   name: homer
   namespace: homelab
   labels:
-    app: homer
+    app.kubernetes.io/name: homer
 spec:
   selector:
     matchLabels:
-      app: homer
+      app.kubernetes.io/name: homer
   template:
     metadata:
       labels:
-        app: homer
+        app.kubernetes.io/name: homer
     spec:
       automountServiceAccountToken: false
       containers:
       - name: homer
         image: b4bz/homer:latest
+        securityContext:
+          readOnlyRootFilesystem: true
         ports:
         - containerPort: 8080
         volumeMounts:
@@ -70,7 +72,7 @@ metadata:
   namespace: homelab
 spec:
   selector:
-    app: homer
+    app.kubernetes.io/name: homer
   ports:
   - protocol: TCP
     port: 8080

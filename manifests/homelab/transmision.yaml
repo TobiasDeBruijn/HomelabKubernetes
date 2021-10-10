@@ -85,6 +85,22 @@ spec:
         - 1.1.1.1
         - 9.9.9.9
       automountServiceAccountToken: false
+      initContainers:
+      - name: etc-openvpn-pia
+        image: haugene/transmission-openvpn:3.7.1
+        volumeMounts:
+        - name: etc-openvpn-pia
+          mountPath: /mnt/etc/openvpn/pia
+        env:
+        - name: VPN_PROVIDER_HOME
+          value: /etc/openvpn/pia
+        command: ["bash", "-c", "sh /etc/openvpn/pia/configure-openvpn.sh && cp /etc/openvpn/pia/* /mnt/etc/openvpn/pia"]
+      - name: etc-transmission
+        image: haugene/transmission-openvpn:3.7.1
+        volumeMounts:
+        - name: etc-transmission
+          mountPath: /mnt/etc/transmission
+        command: ["bash", "-c", "cp /etc/transmission/* /mnt/etc/transmission"]
       containers:
       - name: transmission
         image: "haugene/transmission-openvpn:3.7.1"
@@ -92,9 +108,16 @@ spec:
         - containerPort: 9091
         securityContext:
           capabilities:
+            drop:
+            - CAP_NET_RAW
             add:
             - NET_ADMIN
+          readOnlyRootFilesystem: true
         env:
+        - name: PUID
+          value: "1000" 
+        - name: PGID
+          value: "1000"
         - name: "OPENVPN_PROVIDER"
           value: "PIA"
         - name: "PIA_OPENVPN_CONFIG_BUNDLE"
@@ -152,6 +175,12 @@ spec:
           mountPath: /data/transmission-home
         - name: transmission-download
           mountPath: /data/completed
+        - name: tmp
+          mountPath: /tmp
+        - name: etc-openvpn-pia
+          mountPath: /etc/openvpn/pia
+        - name: etc-transmission
+          mountPath: /etc/transmission
       volumes:
       - name: transmission-data
         persistentVolumeClaim:
@@ -159,6 +188,12 @@ spec:
       - name: transmission-download
         persistentVolumeClaim:
           claimName: transmission-download
+      - name: tmp
+        emptyDir: {}
+      - name: etc-openvpn-pia
+        emptyDir: {}
+      - name: etc-transmission
+        emptyDir: {}
 ---
 apiVersion: v1
 kind: Service

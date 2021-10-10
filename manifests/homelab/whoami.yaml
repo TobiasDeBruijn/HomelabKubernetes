@@ -19,6 +19,8 @@ spec:
       containers:
       - name: whoami
         image: containous/whoami
+        securityContext:
+          readOnlyRootFilesystem: true
 ---
 apiVersion: v1
 kind: Service
