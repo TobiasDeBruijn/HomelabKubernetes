@@ -5,7 +5,7 @@ metadata:
   namespace: homelab
 spec:
   capacity:
-    storage: 500Mi
+    storage: 1000Mi
   volumeMode: Filesystem
   accessModes:
   - ReadWriteMany
@@ -29,7 +29,7 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: 500Mi
+      storage: 1000Mi
   volumeName: radarr-data
   storageClassName: longhorn-static
 ---
