@@ -54,7 +54,9 @@ spec:
       - name: homer
         image: b4bz/homer:latest
         securityContext:
-          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - CAP_NET_RAW
         ports:
         - containerPort: 8080
         volumeMounts:

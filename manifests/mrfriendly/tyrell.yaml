@@ -19,6 +19,10 @@ spec:
       containers:
       - name: tyrell
         image: docker-registry.k8s.array21.dev/mrfriendly-smartbathroom-tyrell:latest
+        securityContext:
+          capabilities:
+            drop:
+            - CAP_NET_RAW
         ports:
         - name: api
           containerPort: 8080

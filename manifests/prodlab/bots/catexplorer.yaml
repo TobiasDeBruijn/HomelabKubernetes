@@ -39,21 +39,25 @@ metadata:
   name: catexplorer
   namespace: prodlab
   labels:
-    app: catexplorer
+    app.kubernetes.io/name: catexplorer
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: catexplorer
+      app.kubernetes.io/name: catexplorer
   template:
     metadata:
       labels:
-        app: catexplorer
+        app.kubernetes.io/name: catexplorer
     spec:
       automountServiceAccountToken: false
       containers:
       - name: catexplorer
         image: thedutchmc/catexplorer:latest
+        securityContext:
+          capabilities:
+            drop:
+            - CAP_NET_RAW
         env:
         - name: "BOT_TOKEN"
           valueFrom:

@@ -11,7 +11,7 @@ metadata:
       allowed, or at minimum restricted to a known list. This policy ensures the `hostPort`
       fields are empty.      
 spec:
-  validationFailureAction: audit
+  validationFailureAction: enforce
   background: true
   rules:
     - name: host-ports

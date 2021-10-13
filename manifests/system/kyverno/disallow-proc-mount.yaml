@@ -10,7 +10,7 @@ metadata:
       The default /proc masks are set up to reduce attack surface and should be required. This policy
       ensures nothing but the default procMount can be specified.      
 spec:
-  validationFailureAction: audit
+  validationFailureAction: enforce
   background: true
   rules:
     - name: check-proc-mount

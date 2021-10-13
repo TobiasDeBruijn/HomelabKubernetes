@@ -19,12 +19,19 @@ spec:
       - name: frontend
         imagePullPolicy: Always
         image: docker-registry.k8s.array21.dev/mrfriendly-crmquery-frontend
+        securityContext:
+          capabilities:
+            drop:
+            - CAP_NET_RAW
         ports:
         - containerPort: 80
-        
       - name: api
         imagePullPolicy: Always
         image: docker-registry.k8s.array21.dev/mrfriendly-crmquery-api
+        securityContext:
+          capabilities:
+            drop:
+            - CAP_NET_RAW
         ports:
         - containerPort: 8080
         env:

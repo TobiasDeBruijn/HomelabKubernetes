@@ -23,6 +23,8 @@ spec:
       containers:
       - name: runner
         image: drone/drone-runner-kube:latest
+#        securityContext:
+#          readOnlyRootFilesystem: true
         ports:
         - containerPort: 3000
         env:

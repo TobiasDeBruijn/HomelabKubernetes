@@ -10,7 +10,7 @@ metadata:
       Privileged mode disables most security mechanisms and must not be allowed. This policy
       ensures Pods do not call for privileged mode.      
 spec:
-  validationFailureAction: audit
+  validationFailureAction: drone
   background: true
   rules:
     - name: priviledged-containers
@@ -26,6 +26,7 @@ spec:
           - cert-manager
           - longhorn-system
           - cilium-test
+          - drone
       validate:
         message: >-
           Privileged mode is disallowed. The fields spec.containers[*].securityContext.privileged

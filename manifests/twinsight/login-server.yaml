@@ -20,6 +20,10 @@ spec:
       - name: login-server
         imagePullPolicy: Always
         image: docker-registry.k8s.array21.dev/twinsight-login-server:0.1.0
+        securityContext:
+          capabilities:
+            drop:
+            - CAP_NET_RAW
         ports:
         - containerPort: 8080
           name: api

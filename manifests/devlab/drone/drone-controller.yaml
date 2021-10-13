@@ -19,6 +19,8 @@ spec:
       containers:
       - name: drone-controller
         image: drone/drone:2.4.0
+#        securityContext:
+#          readOnlyRootFilesystem: true
         env:
         - name: "DRONE_GITHUB_CLIENT_ID"
           valueFrom:

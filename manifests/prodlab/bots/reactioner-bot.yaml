@@ -35,22 +35,26 @@ metadata:
   name: reactioner-bot
   namespace: prodlab
   labels:
-    app: reactioner-bot
+    app.kubernetes.io/name: reactioner-bot
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: reactioner-bot
+      app.kubernetes.io/name: reactioner-bot
   template:
     metadata:
       labels:
-        app: reactioner-bot
+        app.kubernetes.io/name: reactioner-bot
     spec:
       automountServiceAccountToken: false
       containers:
       - name: reactioner-bot
         imagePullPolicy: Always
         image: docker-registry.k8s.array21.dev/reactioner-bot:latest
+        securityContext:
+          capabilities:
+            drop:
+            - CAP_NET_RAW
         env:
         - name: "BOT_TOKEN"
           valueFrom:

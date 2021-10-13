@@ -4,21 +4,25 @@ metadata:
   name: mailsync
   namespace: mrfriendly
   labels:
-    app: mailsync
+    app.kubernetes.io/name: mailsync
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mailsync
+      app.kubernetes.io/name: mailsync
   template:
     metadata:
       labels:
-        app: mailsync
+        app.kubernetes.io/name: mailsync
     spec:
       automountServiceAccountToken: false
       containers:
       - name: mailsync-api
         image: docker-registry.k8s.array21.dev/mrfriendly-mailsync-api:latest
+        securityContext:
+          capabilities:
+            drop:
+            - CAP_NET_RAW
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
@@ -70,7 +74,7 @@ metadata:
   namespace: mrfriendly
 spec:
   selector:
-    app: mailsync
+    app.kubernetes.io/name: mailsync
   ports:
   - protocol: TCP
     name: api

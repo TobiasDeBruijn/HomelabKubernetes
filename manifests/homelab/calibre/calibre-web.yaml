@@ -39,21 +39,25 @@ metadata:
   name: calibre-web
   namespace: homelab
   labels:
-    app: calibre-web
+    app.kubernetes.io/name: calibre-web
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: calibre-web
+      app.kubernetes.io/name: calibre-web
   template:
     metadata:
       labels:
-        app: calibre-web
+        app.kubernetes.io/name: calibre-web
     spec:
       automountServiceAccountToken: false
       containers:
       - name: calibre-web
         image: linuxserver/calibre-web
+        securityContext:
+          capabilities:
+            drop:
+            - CAP_NET_RAW
         env:
         - name: "TZ"
           value: "Europe/Amsterdam"
@@ -82,7 +86,7 @@ metadata:
   namespace: homelab
 spec:
   selector:
-    app: calibre-web
+    app.kubernetes.io/name: calibre-web
   ports:
   - name: web
     protocol: TCP
@@ -97,9 +101,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.iio/proxy-body-size: 150m
-#    nginx.ingress.kubernetes.io/rewrite-target: /calibre-web/$0
     cert-manager.io/cluster-issuer: "letsencrypt-array21"
-
 spec:
   tls:
   - hosts:

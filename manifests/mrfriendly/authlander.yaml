@@ -4,21 +4,25 @@ metadata:
   name: authlander
   namespace: mrfriendly
   labels:
-    app: authlander
+    app.kubernetes.io/name: authlander
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: authlander
+      app.kubernetes.io/name: authlander
   template:
     metadata:
       labels:
-        app: authlander
+        app.kubernetes.io/name: authlander
     spec:
       automountServiceAccountToken: false
       containers:
       - name: authlander
         image: docker-registry.k8s.array21.dev/authlander:latest
+        securityContext:
+          capabilities:
+            drop:
+            - CAP_NET_RAW
         ports:
         - name: api
           containerPort: 8080
@@ -57,7 +61,7 @@ metadata:
   namespace: mrfriendly
 spec:
   selector:
-    app: authlander
+    app.kubernetes.io/name: authlander
   ports:
   - protocol: TCP
     name: api

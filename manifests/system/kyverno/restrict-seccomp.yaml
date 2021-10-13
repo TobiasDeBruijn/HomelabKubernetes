@@ -13,7 +13,7 @@ metadata:
       `runtime/default` is used as a `type`.      
 spec:
   background: true
-  validationFailureAction: audit
+  validationFailureAction: restrict
   rules:
   - name: seccomp
     match:

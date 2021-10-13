@@ -14,7 +14,7 @@ metadata:
       This policy ensures that all containers explicitly drop the CAP_NET_RAW
       ability.      
 spec:
-  validationFailureAction: audit
+  validationFailureAction: enforce
   rules:
   - name: drop-cap-net-raw
     match:
@@ -29,6 +29,7 @@ spec:
         - cert-manager
         - longhorn-system
         - cilium-test
+        - drone
     validate:
       message: "The capability CAP_NET_RAW must be explicitly dropped."
       pattern:

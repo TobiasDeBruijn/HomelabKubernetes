@@ -109,33 +109,16 @@ spec:
         app.kubernetes.io/name: bazarr
     spec:
       automountServiceAccountToken: false
-      initContainers:
-      - name: etc
-        image: linuxserver/bazarr:v0.9.9-ls131
-        volumeMounts:
-        - name: etc
-          mountPath: /mnt/etc
-        command: ["bash", "-c", "cp -r /etc/* /mnt/etc/"]
-      - name: app
-        image: linuxserver/bazarr:v0.9.9-ls131
-        volumeMounts:
-        - name: app
-          mountPath: /mnt/app
-        command: ["bash", "-c", "cp -r /app/* /mnt/app/"]
       containers:
       - name: bazarr
         image: linuxserver/bazarr:v0.9.9-ls131
         securityContext:
-          readOnlyRootFilesystem: true
           capabilities:
             drop: 
             - CAP_NET_RAW
         ports:
         - containerPort: 6767
           name: webint
-        env:
-        - name: COMPlus_EnableDiagnostics
-          value: "0"
         volumeMounts:
         - name: data
           mountPath: /config
@@ -143,14 +126,6 @@ spec:
           mountPath: /movies
         - name: tvshows
           mountPath: /tv
-        - name: var-run-s6
-          mountPath: /var/run/s6
-        - name: etc
-          mountPath: /etc
-        - name: defaults
-          mountPath: /defaults
-        - name: app
-          mountPath: /app
       volumes:
       - name: data
         persistentVolumeClaim:
@@ -161,14 +136,6 @@ spec:
       - name: tvshows
         persistentVolumeClaim: 
           claimName: bazarr-tvshows
-      - name: var-run-s6
-        emptyDir: {}
-      - name: etc
-        emptyDir: {}
-      - name: defaults
-        emptyDir: {}
-      - name: app
-        emptyDir: {}
 ---
 apiVersion: v1
 kind: Service

@@ -39,21 +39,25 @@ metadata:
   name: gitea
   namespace: prodlab
   labels:
-    app: gitea
+    app.kubernetes.io/name: gitea
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: gitea
+      app.kubernetes.io/name: gitea
   template:
     metadata:
       labels:
-        app: gitea
+        app.kubernetes.io/name: gitea
     spec:
       automountServiceAccountToken: false
       containers:
       - name: gitea
         image: gitea/gitea:1.14.4
+        securityContext:
+          capabilities:
+            drop:
+            - CAP_NET_RAW
         env:
         - name: 'USER_UID'
           value: '1000'
@@ -94,7 +98,7 @@ metadata:
 spec:
   type: LoadBalancer
   selector:
-    app: gitea
+    app.kubernetes.io/name: gitea
   ports:
   - protocol: TCP
     name: web

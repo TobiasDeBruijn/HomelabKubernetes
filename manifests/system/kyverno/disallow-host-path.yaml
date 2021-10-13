@@ -11,7 +11,7 @@ metadata:
       Using host resources can be used to access shared data or escalate privileges
       and should not be allowed. This policy ensures no hostPath volumes are in use.      
 spec:
-  validationFailureAction: audit
+  validationFailureAction: enforce
   background: true
   rules:
     - name: host-path
@@ -27,6 +27,7 @@ spec:
           - cert-manager
           - longhorn-system
           - cilium-test
+          - drone
       validate:
         message: >-
                     HostPath volumes are forbidden. The fields spec.volumes[*].hostPath must not be set.

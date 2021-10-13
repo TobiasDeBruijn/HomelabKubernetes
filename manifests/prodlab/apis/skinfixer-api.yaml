@@ -4,22 +4,26 @@ metadata:
   name: skinfixer-api
   namespace: prodlab
   labels:
-    app: skinfixer-api
+    app.kubernetes.io/name: skinfixer-api
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: skinfixer-api
+      app.kubernetes.io/name: skinfixer-api
   template:
     metadata:
       labels:
-        app: skinfixer-api
+        app.kubernetes.io/name: skinfixer-api
     spec:
       automountServiceAccountToken: false
       containers:
       - name: skinfixer-api
         imagePullPolicy: Always
         image: docker-registry.k8s.array21.dev/skinfixer-api:latest
+        securityContext:
+          capabilities:
+            drop:
+            - CAP_NET_RAW
         ports:
         - containerPort: 8080
           name: api
@@ -57,7 +61,7 @@ metadata:
   namespace: prodlab
 spec:
   selector:
-    app: skinfixer-api
+    app.kubernetes.io/name: skinfixer-api
   ports:
   - protocol: TCP
     port: 8080

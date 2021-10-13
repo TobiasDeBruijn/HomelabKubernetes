@@ -4,48 +4,28 @@ metadata:
   name: plugin-stat-server
   namespace: prodlab
   labels:
-    app: plugin-stat-server
+    app.kubernetes.io/name: plugin-stat-server
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: plugin-stat-server
+      app.kubernetes.io/name: plugin-stat-server
   template:
     metadata:
       labels:
-        app: plugin-stat-server
+        app.kubernetes.io/name: plugin-stat-server
     spec:
       automountServiceAccountToken: false
       containers:
       - name: plugin-stat-server
         imagePullPolicy: Always
         image: docker-registry.k8s.array21.dev/plugin-stat-server:v2
+        securityContext:
+          capabilities:
+            drop:
+            - CAP_NET_RAW
         ports:
         - containerPort: 8080
-<<<<<<< HEAD
-=======
-        env:
-        - name: "MYSQL_HOST"
-          valueFrom:
-            secretKeyRef:
-              name: plugin-stat-server
-              key: mysql-host
-        - name: "MYSQL_DATABASE"
-          valueFrom:
-            secretKeyRef:
-              name: plugin-stat-server
-              key: mysql-database
-        - name: "MYSQL_USERNAME"
-          valueFrom:
-            secretKeyRef:
-              name: plugin-stat-server
-              key: mysql-username
-        - name: "MYSQL_PASSWORD"
-          valueFrom:
-            secretKeyRef:
-              name: plugin-stat-server
-              key: mysql-password
->>>>>>> 3ee5a24919bec91caadf6de2efdf817cf4769e49
 ---
 apiVersion: v1
 kind: Service
@@ -54,7 +34,7 @@ metadata:
   namespace: prodlab
 spec:
   selector:
-    app: plugin-stat-server
+    app.kubernetes.io/name: plugin-stat-server
   ports:
   - protocol: TCP
     port: 8080
@@ -71,13 +51,8 @@ metadata:
 spec:
   tls:
   - hosts:
-<<<<<<< HEAD
     - plugin-stat.k8s.array21.dev
     secretName: plugin-stat-k8s-array21-dev
-=======
-    - plugin-stats.k8s.array21.dev
-    secretName: plugin-stats-k8s-array21-dev
->>>>>>> 3ee5a24919bec91caadf6de2efdf817cf4769e49
   rules:
   - host: plugin-stat.k8s.array21.dev
     http:

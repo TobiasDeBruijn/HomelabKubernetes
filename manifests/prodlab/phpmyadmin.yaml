@@ -19,6 +19,10 @@ spec:
       containers:
       - name: phpmyadmin
         image: phpmyadmin/phpmyadmin
+        securityContext:
+          capabilities:
+            drop:
+            - CAP_NET_RAW
         env:
         - name: "PMA_HOST"
           value: "mariadb.intern.array21.dev"
@@ -51,7 +55,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: "letsencrypt-array21"
-#    nginx.ingress.kubernetes.io/whitelist-source-range: "10.10.0.0/16"
+    nginx.ingress.kubernetes.io/whitelist-source-range: "10.10.0.0/16"
     nginx.ingress.kubernetes.io/proxy-body-size: 150m
 
 spec:

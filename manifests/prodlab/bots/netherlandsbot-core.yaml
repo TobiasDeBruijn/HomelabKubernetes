@@ -16,21 +16,25 @@ metadata:
   name: netherlandsbot
   namespace: prodlab
   labels:
-    app: netherlandsbot
+    app.kubernetes.io/name: netherlandsbot
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: netherlandsbot
+      app.kubernetes.io/name: netherlandsbot
   template:
     metadata:
       labels:
-        app: netherlandsbot
+        app.kubernetes.io/name: netherlandsbot
     spec:
       automountServiceAccountToken: false
       containers:
       - name: netherlandsbot
         image: docker-registry.k8s.array21.dev/netherlandsbot:latest
+        securityContext:
+          capabilities:
+            drop:
+            - CAP_NET_RAW
         volumeMounts:
         - name: config
           mountPath: /config
@@ -38,7 +42,7 @@ spec:
           mountPath: /moduleconfig/
         env:
         - name: REPOS
-          value: 'https://github.com/Netherlandschat/HoiModule.git,https://github.com/Netherlandschat/FruitModule.git,https://github.com/Netherlandschat/DickMeasuringContest.git'
+          value: "https://github.com/Netherlandschat/HoiModule.git,https://github.com/Netherlandschat/FruitModule.git,https://github.com/Netherlandschat/DickMeasuringContest.git"
         - name: RUST_LOG
           value: TRACE
       volumes:

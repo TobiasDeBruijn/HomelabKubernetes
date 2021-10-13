@@ -4,22 +4,26 @@ metadata:
   name: dashboard
   namespace: mrfriendly
   labels:
-    app: dashboard
+    app.kubernetes.io/name: dashboard
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: dashboard
+      app.kubernetes.io/name: dashboard
   template:
     metadata:
       labels:
-        app: dashboard
+        app.kubernetes.io/name: dashboard
     spec:
       automountServiceAccountToken: false
       containers:
       - name: dashboard
         imagePullPolicy: Always
         image: docker-registry.k8s.array21.dev/mrfriendly-dashboard:latest
+        securityContext:
+          capabilities:
+            drop:
+            - CAP_NET_RAW
         ports:
         - containerPort: 80
           name: web
@@ -34,7 +38,7 @@ metadata:
   namespace: mrfriendly
 spec:
   selector:
-    app: dashboard
+    app.kubernetes.io/name: dashboard
   ports:
   - protocol: TCP
     port: 80

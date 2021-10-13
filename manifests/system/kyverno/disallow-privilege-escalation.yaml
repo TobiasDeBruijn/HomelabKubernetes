@@ -12,7 +12,7 @@ metadata:
       or set to `false`.      
 spec:
   background: true
-  validationFailureAction: audit
+  validationFailureAction: enforce
   rules:
   - name: deny-privilege-escalation
     match:

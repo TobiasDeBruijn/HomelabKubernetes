@@ -4,22 +4,26 @@ metadata:
   name: subscription-server
   namespace: twinsight
   labels:
-    app: subscription-server
+    app.kubernetes.io/name: subscription-server
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: subscription-server
+      app.kubernetes.io/name: subscription-server
   template:
     metadata:
       labels: 
-        app: subscription-server
+        app.kubernetes.io/name: subscription-server
     spec:
       automountServiceAccountToken: false
       containers:
       - name: subscription-server
         imagePullPolicy: Always
         image: docker-registry.k8s.array21.dev/twinsight-subscription-server:latest
+        securityContext:
+          capabilities:
+            drop:
+            - CAP_NET_RAW
         ports:
         - containerPort: 8080
           name: api
@@ -48,7 +52,7 @@ metadata:
   namespace: twinsight
 spec:
   selector:
-    app: subscription-server
+    app.kubernetes.io/name: subscription-server
   ports:
   - protocol: TCP
     name: api

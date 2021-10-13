@@ -20,6 +20,10 @@ spec:
       - name: content-server
         imagePullPolicy: Always
         image: docker-registry.k8s.array21.dev/twinsight-content-server
+        securityContext:
+          capabilities:
+            drop:
+            - CAP_NET_RAW
         ports:
         - containerPort: 8080
           name: api
@@ -45,6 +49,12 @@ spec:
             secretKeyRef:
               name: content-server
               key: discord-webhook
+        volumeMounts:
+        - mountPath: /tmp
+          name: tmp
+      volumes:
+      - emptyDir: {}
+        name: tmp
 ---
 apiVersion: v1
 kind: Service

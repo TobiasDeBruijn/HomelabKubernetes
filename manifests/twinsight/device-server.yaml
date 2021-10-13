@@ -20,6 +20,10 @@ spec:
       - name: device-server
         imagePullPolicy: Always
         image: docker-registry.k8s.array21.dev/twinsight-device-server:latest
+        securityContext:
+          capabilities:
+            drop:
+            - CAP_NET_RAW
         ports:
         - containerPort: 8080
           name: api

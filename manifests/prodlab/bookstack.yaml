@@ -39,21 +39,25 @@ metadata:
   name: bookstack
   namespace: prodlab
   labels:
-    app: bookstack
+    app.kubernetes.io/name: bookstack
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: bookstack
+      app.kubernetes.io/name: bookstack
   template:
     metadata:
       labels:
-        app: bookstack
+        app.kubernetes.io/name: bookstack
     spec:
       automountServiceAccountToken: false
       containers:
       - name: bookstack
         image: linuxserver/bookstack
+        securityContext:
+          capabilities:
+            drop:
+            - CAP_NET_RAW
         env:
         - name: "APP_URL"
           value: "https://wiki.k8s.array21.dev"
@@ -89,7 +93,7 @@ metadata:
   namespace: prodlab
 spec:
   selector:
-    app: bookstack
+    app.kubernetes.io/name: bookstack
   ports:
   - protocol: TCP
     name: web

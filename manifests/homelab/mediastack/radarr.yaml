@@ -113,32 +113,15 @@ spec:
         app.kubernetes.io/name: radarr
     spec:
       automountServiceAccountToken: false
-      initContainers:
-      - name: etc
-        image: linuxserver/radarr:3.2.2.5080-ls118
-        volumeMounts:
-        - name: etc
-          mountPath: /mnt/etc
-        command: ["bash", "-c", "cp -r /etc/* /mnt/etc/"]
-      - name: app
-        image: linuxserver/radarr:3.2.2.5080-ls118
-        volumeMounts:
-        - name: app
-          mountPath: /mnt/app
-        command: ["bash", "-c", "cp -r /app/* /mnt/app/"]
       containers:
       - name: radarr
         image: linuxserver/radarr:3.2.2.5080-ls118
         securityContext:
-          readOnlyRootFilesystem: true
           capabilities:
             drop:
             - CAP_NET_RAW
         ports:
         - containerPort: 7878
-        env:
-        - name: COMPlus_EnableDiagnostics
-          value: "0"
         volumeMounts:
         - name: data
           mountPath: /config
@@ -146,14 +129,6 @@ spec:
           mountPath: /data/completed
         - name: movies
           mountPath: /movies
-        - name: var-run-s6
-          mountPath: /var/run/s6
-        - name: etc
-          mountPath: /etc
-        - name: defaults
-          mountPath: /defaults
-        - name: app
-          mountPath: /app
       volumes:
       - name: data
         persistentVolumeClaim:
@@ -164,14 +139,6 @@ spec:
       - name: movies
         persistentVolumeClaim: 
           claimName: radarr-movies
-      - name: var-run-s6
-        emptyDir: {}
-      - name: etc
-        emptyDir: {}
-      - name: defaults
-        emptyDir: {}
-      - name: app
-        emptyDir: {}
 ---
 apiVersion: v1
 kind: Service

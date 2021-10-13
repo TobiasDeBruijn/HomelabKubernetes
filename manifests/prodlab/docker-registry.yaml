@@ -39,21 +39,25 @@ metadata:
   name: docker-registry
   namespace: prodlab
   labels:
-    app: docker-registry
+    app.kubernetes.io/name: docker-registry
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: docker-registry
+      app.kubernetes.io/name: docker-registry
   template:
     metadata:
       labels:
-        app: docker-registry
+        app.kubernetes.io/name: docker-registry
     spec:
       automountServiceAccountToken: false
       containers:
       - name: docker-registry
         image: registry:2.7.1
+        securityContext:
+          capabilities:
+            drop:
+            - CAP_NET_RAW
         ports:
         - containerPort: 5000
           name: main
@@ -86,7 +90,7 @@ metadata:
   namespace: prodlab
 spec:
   selector:
-    app: docker-registry
+    app.kubernetes.io/name: docker-registry
   ports:
   - protocol: TCP
     name: main
