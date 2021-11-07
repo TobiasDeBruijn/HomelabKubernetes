@@ -17,8 +17,8 @@ spec:
     spec:
       automountServiceAccountToken: false
       containers:
-      - name: mailsync-api
-        image: docker-registry.k8s.array21.dev/mrfriendly-mailsync-api:latest
+      - name: mailsync
+        image: docker-registry.k8s.array21.dev/mrfriendly-mailsync:latest
         securityContext:
           capabilities:
             drop:
@@ -26,46 +26,43 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
-          name: api-port
         env:
-        - name: "DEBUG"
-          value: "true"
-        - name: "AUTH_API_TOKEN"
+        - name: ESPO_API_KEY
           valueFrom:
             secretKeyRef:
-              name: mailsync-api
-              key: auth_api_token
-        - name: "FRONTEND_HOST"
-          value: "https://intern.mrfriendly.nl"
-        - name: "AUTH_SERVER_HOST"
-          value: "https://authlander.intern.mrfriendly.nl"
-        - name: "ESPO_HOST"
+              name: mailsync
+              key: espo-api-key
+        - name: ESPO_API_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: mailsync
+              key: espo-api-secret
+        - name: ESPO_HOST
           value: "https://espocrm.intern.mrfriendly.nl"
-        - name: "ESPO_API_KEY"
+        - name: AUTHLANDER_KEY
           valueFrom:
             secretKeyRef:
-              name: mailsync-api
-              key: espo_api_key
-        - name: "ESPO_SECRET_KEY"
-          valueFrom:
-            secretKeyRef:
-              name: mailsync-api
-              key: espo_api_secret
-        - name: "MYSQL_HOST"
+              name: mailsync
+              key: authlander-key
+        - name: AUTHLANDER_HOST
+          value: "https://authlander.intern.mrfriendly.nl"
+        - name: MYSQL_HOST
           value: "mariadb.intern.array21.dev"
-        - name: "MYSQL_DB"
-          value: "mrfriendly_prod_mailsync"
-        - name: "MYSQL_USERNAME"
+        - name: MYSQL_DATABASE
           valueFrom:
             secretKeyRef:
-              name: mailsync-api
-              key: mysql_username
-        - name: "MYSQL_PASSWORD"
+              name: mailsync
+              key: mysql-database
+        - name: MYSQL_USERNAME
           valueFrom:
             secretKeyRef:
-              name: mailsync-api
-              key: mysql_password
-      # TODO Frontend container
+              name: mailsync
+              key: mysql-username
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mailsync
+              key: mysql-password
 ---
 apiVersion: v1
 kind: Service
@@ -77,10 +74,8 @@ spec:
     app.kubernetes.io/name: mailsync
   ports:
   - protocol: TCP
-    name: api
     port: 8080
     targetPort: 8080
-  #TODO Frontend ports
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -93,10 +88,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - mailsync-api.intern.mrfriendly.nl
-    secretName: mailsync-api-intern-mrfriendly-tls
+    - mailsync.intern.mrfriendly.nl
+    secretName: mailsync-intern-mrfriendly-tls
   rules:
-  - host: mailsync-api.intern.mrfriendly.nl
+  - host: mailsync.intern.mrfriendly.nl
     http:
       paths:
       - path: /
@@ -106,4 +101,3 @@ spec:
             name: mailsync
             port:
               number: 8080
-      

@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: betterplayer-bot
+  name: betterplayer-canary-bot
   namespace: prodlab
   labels:
-    app.kubernetes.io/name: betterplayer-bot
+    app.kubernetes.io/name: betterplayer-canary-bot
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: betterplayer-bot
+      app.kubernetes.io/name: betterplayer-canary-bot
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: betterplayer-bot
+        app.kubernetes.io/name: betterplayer-canary-bot
     spec:
       automountServiceAccountToken: false
       containers:
-      - name: betterplayer-bot
+      - name: betterplayer-canary-bot
         imagePullPolicy: Always
         image: docker-registry.k8s.array21.dev/betterplayer-bot:latest
         securityContext:
@@ -28,44 +28,44 @@ spec:
         - name: BOT_TOKEN
           valueFrom:
             secretKeyRef:
-              name: betterplayer-bot 
+              name: betterplayer-canary-bot 
               key: bot-token
         - name: USE_GOOGLE_API
           value: "true"
         - name: GOOGLE_API_KEY
           valueFrom:
             secretKeyRef:
-              name: betterplayer-bot
+              name: betterplayer-canary-bot
               key: google-api-key
         - name: DB_HOST
           value: mariadb.intern.array21.dev
         - name: DB_DATABASE
           valueFrom:
             secretKeyRef:
-              name: betterplayer-bot
+              name: betterplayer-canary-bot
               key: db-database
         - name: DB_USERNAME
           valueFrom:
             secretKeyRef:
-              name: betterplayer-bot
+              name: betterplayer-canary-bot
               key: db-username
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: betterplayer-bot
+              name: betterplayer-canary-bot
               key: db-password
         - name: KSOFT_API_TOKEN
           valueFrom:
             secretKeyRef:
-              name: betterplayer-bot
+              name: betterplayer-canary-bot
               key: ksoft-api-token
         - name: SPOTIFY_CLIENT_ID
           valueFrom:
             secretKeyRef:
-              name: betterplayer-bot
+              name: betterplayer-canary-bot
               key: spotify-client-id
         - name: SPOTIFY_CLIENT_SECRET
           valueFrom:
             secretKeyRef:
-              name: betterplayer-bot
+              name: betterplayer-canary-bot
               key: spotify-client-secret

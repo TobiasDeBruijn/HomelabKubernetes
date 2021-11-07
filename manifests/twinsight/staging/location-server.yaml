@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: location-server-staging
+  namespace: twinsight
+  labels:
+    app.kubernetes.io/name: location-server-staging
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: location-server-staging
+  template:
+    metadata:
+      labels: 
+        app.kubernetes.io/name: location-server-staging
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - name: location-server-staging
+        imagePullPolicy: Always
+        image: docker-registry.k8s.array21.dev/twinsight-location-server:latest
+        securityContext:
+          capabilities:
+            drop:
+            - CAP_NET_RAW
+        ports:
+        - containerPort: 8080
+          name: api
+        env:
+        - name: MYSQL_HOST
+          value: mariadb.intern.array21.dev
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: location-server-staging
+              key: mysql-database
+        - name: MYSQL_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: location-server-staging
+              key: mysql-username
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: location-server-staging
+              key: mysql-password
+        - name: LOGIN_SERVER_HOST
+          value: http://login-server-staging.twinsight.svc.cluster.local:8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: location-server-staging
+  namespace: twinsight
+spec:
+  selector:
+    app.kubernetes.io/name: location-server-staging
+  ports:
+  - protocol: TCP
+    name: api
+    port: 8080
+    targetPort: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: location-server-staging
+  namespace: twinsight
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: "letsencrypt-twinsight-media"
+spec:
+  tls:
+  - hosts:
+    - location.staging.twinsight.media
+    secretName: location-staging-twinsight-media
+  rules:
+  - host: location.staging.twinsight.media
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: location-server-staging
+            port:
+              number: 8080

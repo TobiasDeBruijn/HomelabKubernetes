@@ -24,8 +24,6 @@ spec:
             - CAP_NET_RAW
         imagePullPolicy: Always
         image: docker-registry.k8s.array21.dev/twinsight-content-manager-frontend:latest
-        securityContext:
-          readOnlyRootFilesystem: true
         ports:
         - containerPort: 80
 ---

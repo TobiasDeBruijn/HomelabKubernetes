@@ -22,7 +22,7 @@ spec:
         - 10.10.0.1
       containers:
       - name: runner
-        image: drone/drone-runner-kube:latest
+        image: drone/drone-runner-kube:1.0.0-rc.1
 #        securityContext:
 #          readOnlyRootFilesystem: true
         ports:

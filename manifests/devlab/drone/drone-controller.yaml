@@ -46,7 +46,7 @@ spec:
         - name: "DRONE_TLS_KEY"
           value: "/etc/certs/drone.k8s.array21.dev/tls.key"
         - name: "DRONE_USER_CREATE"
-          value: "username:tobias,admin:true"
+          value: "username:TheDutchMC,admin:true"
         - name: "DRONE_SERVICE_ACCOUNT_DEFAULT"
           value: "drone"
         - name: "DRONE_DATABASE_DRIVER"

@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kermitbot
+  namespace: prodlab
+  labels:
+    app.kubernetes.io/name: kermitbot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kermitbot
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: kermitbot
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - name: kermitbot
+        imagePullPolicy: Always
+        image: docker-registry.k8s.array21.dev/kermitbot:latest
+        securityContext:
+          capabilities:
+            drop:
+            - CAP_NET_RAW
+        env:
+        - name: BOT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: kermitbot
+              key: bot-token
+        - name: GUILD_ID
+          valueFrom:
+            secretKeyRef:
+              name: kermitbot
+              key: guild-id
+        - name: MYSQL_HOST
+          value: mariadb.intern.array21.dev
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: kermitbot
+              key: mysql-database
+        - name: MYSQL_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: kermitbot
+              key: mysql-username
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: kermitbot
+              key: mysql-password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kermitbot
+  namespace: prodlab
+spec:
+  selector:
+    app.kubernetes.io/name: kermitbot
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kermitbot
+  namespace: prodlab
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-array21"
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  tls:
+  - hosts:
+    - kermitbot.k8s.array21.dev
+    secretName: kermitbot-k8s-array21-dev
+  rules:
+  - host: kermitbot.k8s.array21.dev
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: kermitbot
+            port:
+              number: 8080
