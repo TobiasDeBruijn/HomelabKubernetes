@@ -31,7 +31,10 @@ spec:
         - name: MYSQL_HOST
           value: mariadb.intern.array21.dev
         - name: MYSQL_DATABASE
-          value: twinsight-prod-content-server
+          valueFrom: 
+            secretKeyRef: 
+              name: content-server
+              key: mysql-database
         - name: MYSQL_USERNAME
           valueFrom:
             secretKeyRef:

@@ -4,7 +4,7 @@
 #m3 ansible_host=10.10.4.24
 
 [workers]
-w2 ansible_host=10.10.4.26
+w3 ansible_host=10.10.4.27
 #w5 ansible_host=10.10.4.45
 #w6 ansible_host=10.10.4.46
 

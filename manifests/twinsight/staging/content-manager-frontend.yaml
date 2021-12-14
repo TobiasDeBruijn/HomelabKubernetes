@@ -6,7 +6,6 @@ metadata:
   labels:
     app.kubernetes.io/name: content-manager-frontend-staging
 spec:
-  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: content-manager-frontend-staging

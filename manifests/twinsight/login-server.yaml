@@ -19,7 +19,7 @@ spec:
       containers:
       - name: login-server
         imagePullPolicy: Always
-        image: docker-registry.k8s.array21.dev/twinsight-login-server:0.1.0
+        image: docker-registry.k8s.array21.dev/twinsight-login-server:latest
         securityContext:
           capabilities:
             drop:
@@ -31,7 +31,10 @@ spec:
         - name: MYSQL_HOST
           value: mariadb.intern.array21.dev
         - name: MYSQL_DATABASE
-          value: twinsight-prod-login-server
+          valueFrom:
+            secretKeyRef:
+              name: login-server
+              key: mysql-database
         - name: MYSQL_USERNAME
           valueFrom:
             secretKeyRef:
@@ -51,6 +54,20 @@ spec:
           value: "noreply@signin.array21.dev"
         - name: FRONTEND_HOST
           value: "https://content-manager.staging.twinsight.media"
+        - name: USER_SERVER_HOST
+          value: "http://user-server.twinsight.svc.cluster.local:8080"
+        - name: USER_SERVER_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: login-server
+              key: user-server-token
+        - name: SUB_SERVER_HOST
+          value: "http://subscription-server.twinsight.svc.cluster.local:8080"
+        - name: SUB_SERVER_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: login-server
+              key: sub-server-token
 ---
 apiVersion: v1
 kind: Service

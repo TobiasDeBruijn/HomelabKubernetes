@@ -28,12 +28,13 @@ spec:
         - containerPort: 8080
           name: api
         env:
-        - name: RUST_BACKTRACE
-          value: "1"
         - name: MYSQL_HOST
           value: mariadb.intern.array21.dev
         - name: MYSQL_DATABASE
-          value: twinsight-prod-device-server
+          valueFrom:
+            secretKeyRef:
+              name: device-server
+              key: mysql-database
         - name: MYSQL_USERNAME
           valueFrom:
             secretKeyRef:
