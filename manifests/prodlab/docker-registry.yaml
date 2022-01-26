@@ -5,19 +5,13 @@ metadata:
   namespace: prodlab
 spec:
   capacity:
-    storage: 20Gi
-  volumeMode: Filesystem
+    storage: 30Gi
   accessModes:
   - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: longhorn-static
-  csi:
-    driver: driver.longhorn.io
-    fsType: ext4
-    volumeAttributes:
-      numberOfReplicas: '1'
-      staleReplicaTimeout: '2880'
-    volumeHandle: docker-registry
+  nfs:
+    path: /mnt/storage-pool/docker-registry
+    server: '10.10.2.8'
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -25,13 +19,13 @@ metadata:
   name: docker-registry
   namespace: prodlab
 spec:
+  storageClassName: ""
   accessModes:
   - ReadWriteMany
   resources:
     requests:
-      storage: 20Gi
+      storage: 30Gi
   volumeName: docker-registry
-  storageClassName: longhorn-static
 ---
 apiVersion: apps/v1
 kind: Deployment

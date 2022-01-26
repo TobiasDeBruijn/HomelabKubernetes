@@ -44,8 +44,8 @@ spec:
   accessModes:
     - ReadWriteMany
   nfs:
-    path: /storage-pool/transmission
-    server: storage-hdd.intern.array21.dev
+    path: /storage-pool/transmission-data
+    server: storage-ssd.intern.array21.dev
   persistentVolumeReclaimPolicy: Retain
 ---
 apiVersion: v1

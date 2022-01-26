@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mediastack-jackett
+  namespace: external-names
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-array21"
+    nginx.ingress.kubernetes.io/whitelist-source-range: 10.10.0.0/16
+spec:
+  tls:
+  - secretName: jackett-apps-array21-dev
+    hosts:
+    - jackett.apps.array21.dev
+  rules:
+  - host: jackett.apps.array21.dev
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: mediastack
+            port:
+              number: 9117

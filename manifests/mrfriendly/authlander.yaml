@@ -40,7 +40,7 @@ spec:
         - name: "HOST"
           value: "https://authlander.intern.mrfriendly.nl"
         - name: "MYSQL_HOST"
-          value: "mariadb.intern.array21.dev"
+          value: "10.10.4.4"
         - name: "MYSQL_DATABASE"
           value: "mrfriendly_prod_authlander"
         - name: "MYSQL_USERNAME"

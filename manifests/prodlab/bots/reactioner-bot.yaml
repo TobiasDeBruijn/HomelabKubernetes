@@ -8,7 +8,7 @@ data:
     botToken: FROM_ENV
     commandPrefix: '%'
     messageEntries:
-    - messageId: '851879298650210315'
+    - messageId: '921116329715580928'
       reactionEntries:
       - reactionName: purple_heart
         roleId: 738026804815724684
@@ -18,13 +18,13 @@ data:
         roleId: 738026881697185883
       - reactionName: green_heart
         roleId: 738026938236403852
-    - messageId: '851879671955718146'
+    - messageId: '921116579477983234'
       reactionEntries:
       - reactionName: egg
         roleId: 851883917127843921
       - reactionName: chicken
         roleId: 851883870965858344
-    - messageId: '851882998030663711'
+    - messageId: '921117232132653108'
       reactionEntries:
       - reactionName: frog
         roleId: 644642055896694804

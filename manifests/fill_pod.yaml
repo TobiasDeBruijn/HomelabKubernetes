@@ -1,10 +1,11 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: fill-pod
+  namespace: dev
+  name: fillpod
 spec:
   capacity:
-    storage: 2Gi
+    storage: 1Gi
   volumeMode: Filesystem
   accessModes:
   - ReadWriteMany
@@ -16,25 +17,29 @@ spec:
     volumeAttributes:
       numberOfReplicas: '3'
       staleReplicaTimeout: '2880'
-    volumeHandle: bookstack
+    volumeHandle: transmission
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: fill-pod
+  namespace: dev
+  name: fillpod
 spec:
   accessModes:
   - ReadWriteMany
   resources:
     requests:
-      storage: 2Gi
-  volumeName: fill-pod
+      storage: 1Gi
+  volumeName: fillpod
   storageClassName: longhorn-static
 ---
 apiVersion: v1
 kind: Pod
 metadata:
-  name: fill-pod
+  namespace: dev
+  name: fillpod
+  labels:
+    app.kubernetes.io/name: fillpod
 spec:
   containers:
   - name: fill-pod
@@ -48,5 +53,5 @@ spec:
   volumes:
   - name: data
     persistentVolumeClaim:
-      claimName: fill-pod
+      claimName: fillpod
       
