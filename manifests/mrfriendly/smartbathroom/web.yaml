@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smartbathroom-web
+  namespace: mrfriendly
+  labels:
+    app.kubernetes.io/name: smartbathroom-web
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: smartbathroom-web
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: smartbathroom-web
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - name: web
+        image: docker-registry.k8s.array21.dev/mrfriendly-smartbathroom-web:latest
+        securityContext:
+          capabilities:
+            drop:
+            - CAP_NET_RAW
+        ports:
+        - name: web
+          containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: smartbathroom-web
+  namespace: mrfriendly
+spec:
+  selector:
+    app.kubernetes.io/name: smartbathroom-web
+  ports:
+  - name: web
+    port: 80
+    protocol: TCP
+    targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: smartbathroom-web
+  namespace: mrfriendly
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-mrfriendly
+spec:
+  tls:
+  - hosts:
+    - smartbathroom.mrfriendly.nl
+    secretName: smartbathroom-mrfriendly-nl
+  rules:
+  - host: smartbathroom.mrfriendly.nl
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: smartbathroom-web
+            port:
+              number: 80

@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smartbathroom-server-staging
+  namespace: mrfriendly
+  labels:
+    app.kubernetes.io/name: smartbathroom-server-staging
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: smartbathroom-server-staging
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: smartbathroom-server-staging
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - name: server
+        image: docker-registry.k8s.array21.dev/mrfriendly-smartbathroom-server:latest
+        securityContext:
+          capabilities:
+            drop:
+            - CAP_NET_RAW
+        ports:
+        - name: api
+          containerPort: 8080
+        env:
+        - name: MYSQL_HOST
+          value: mariadb.intern.array21.dev
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: smartbathroom-server-staging
+              key: mysql-database
+        - name: MYSQL_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: smartbathroom-server-staging
+              key: mysql-username
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef: 
+              name: smartbathroom-server-staging
+              key: mysql-password
+        - name: PEPPER
+          valueFrom:
+            secretKeyRef:
+              name: smartbathroom-server-staging
+              key: password-pepper
+        - name: ENCRYPTION_CIPHER
+          valueFrom:
+            secretKeyRef:
+              name: smartbathroom-server-staging
+              key: encryption-cipher
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: smartbathroom-server-staging
+  namespace: mrfriendly
+spec:
+  selector:
+    app.kubernetes.io/name: smartbathroom-server-staging
+  ports:
+  - name: api
+    protocol: TCP
+    port: 8080
+    targetPort: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: smartbathroom-server-staging
+  namespace: mrfriendly
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-mrfriendly
+spec:
+  tls:
+  - hosts:
+    - smartbathroom.staging.mrfriendly.nl
+    secretName: smartbathroom-staging-mrfriendly-nl
+  rules:
+  - host: smartbathroom.staging.mrfriendly.nl
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: smartbathroom-server-staging
+            port:
+              number: 8080
