@@ -18,7 +18,7 @@ metadata:
   namespace: external-names
 spec:
   type: ExternalName
-  externalName: jellyfin.intern.array21.dev
+  externalName: 10.10.4.7
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
