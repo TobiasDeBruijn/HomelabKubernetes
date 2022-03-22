@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inf-mindstorm-website
+  namespace: homelab
+  labels:
+    app.kubernetes.io/name: inf-mindstorm-website
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: inf-mindstorm-website
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: inf-mindstorm-website
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - name: inf-mindstorm-websiter
+        image: docker-registry.k8s.array21.dev/inf-mindstorm-website:latest
+        securityContext:
+          capabilities:
+            drop:
+            - CAP_NET_RAW
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inf-mindstorm-website
+  namespace: homelab
+spec:
+  selector:
+    app.kubernetes.io/name: inf-mindstorm-website
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: inf-mindstorm-websiter
+  namespace: homelab
+  annotations:
+    kubernets.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: 'letsencrypt-array21'
+spec:
+  tls:
+  - hosts:
+    - inf-mindstorm-website.apps.array21.dev
+    secretName: inf-mindstorm-website-apps-array21-dev
+  rules:
+  - host: inf-mindstorm-website.apps.array21.dev
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: inf-mindstorm-website
+            port:
+              number: 80
