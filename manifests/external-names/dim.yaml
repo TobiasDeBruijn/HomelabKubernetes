@@ -1,0 +1,78 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: dim-apps-array21-dev
+  namespace: external-names
+spec:
+  secretName: dim-apps-array21-dev
+  dnsNames:
+  - dim.apps.array21.dev
+  issuerRef:
+    name: letsencrypt-array21
+    kind: ClusterIssuer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dim
+  namespace: external-names
+spec:
+  type: ExternalName
+  externalName: 10.10.200.159
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dim
+  namespace: external-names
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"    
+spec:
+  tls:
+  - hosts:
+    - dim.apps.array21.dev
+    secretName: dim-apps-array21-dev
+  rules:
+  - host: dim.apps.array21.dev
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: dim
+            port:
+              number: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dim-websocket
+  namespace: external-names
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    cert-manager.io/cluster-issuer: 'letsencrypt-array21'
+    nginx.ingress.kubernetes.io/configuration-snippet: |-
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
+spec:
+  tls:
+  - hosts:
+    - dim.apps.array21.dev
+    secretName: dim-apps-array21-dev
+  rules:
+  - host: dim.apps.array21.dev
+    http:
+      paths:
+      - path: /socket
+        pathType: Prefix
+        backend:
+          service:
+            name: dim
+            port:
+              number: 8080
