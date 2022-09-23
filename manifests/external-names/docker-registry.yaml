@@ -1,0 +1,64 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: docker-registry
+  namespace: external-names
+spec:
+  type: ExternalName
+  externalName: 10.10.4.6
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: docker-registry
+  namespace: external-names
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/proxy-body-size: 8196m
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    cert-manager.io/cluster-issuer: 'letsencrypt-array21'
+spec:
+  tls:
+  - hosts:
+    - docker-registry.k8s.array21.dev
+    secretName: docker-registry-k8s-array21-dev
+
+  rules:
+  - host: docker-registry.k8s.array21.dev
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: docker-registry
+            port:
+              number: 5000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: docker-registry-ui
+  namespace: external-names
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: 'letsencrypt-array21'
+spec:
+  tls:
+  - hosts:
+    - docker-dashboard.k8s.array21.dev
+    secretName: docker-dashboard-k8s-array21-dev
+
+  rules:
+  - host: docker-dashboard.k8s.array21.dev
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: docker-registry
+            port:
+              number: 5001
+

@@ -1,32 +1,34 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: authlander
-  namespace: mrfriendly
+  name: deskled
+  namespace: external-names
 spec:
   type: ExternalName
-  externalName: desktop.intern.array21.dev
+  externalName: 10.10.4.98
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: crmquery-api
-  namespace: mrfriendly
+  name: deb-repository
+  namespace: external-names
   annotations:
     kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: 'letsencrypt-array21'
 spec:
   tls:
   - hosts:
-    - authlander.intern.mrfriendly.nl
-    secretName: mrfriendly-tls
+    - deskled.k8s.array21.dev
+    secretName: deskled-k8s-array21-dev
+
   rules:
-  - host: authlander.intern.mrfriendly.nl
+  - host: deskled.k8s.array21.dev
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: authlander
+            name: deskled
             port:
               number: 8080

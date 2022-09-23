@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: location-server-staging
-  namespace: twinsight
+  name: bierzee-api
+  namespace: prodlab
   labels:
-    app.kubernetes.io/name: location-server-staging
+    app.kubernetes.io/name: bierzee-api
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: location-server-staging
+      app.kubernetes.io/name: bierzee-api
   template:
     metadata:
-      labels: 
-        app.kubernetes.io/name: location-server-staging
+      labels:
+        app.kubernetes.io/name: bierzee-api
     spec:
       automountServiceAccountToken: false
       containers:
-      - name: location-server-staging
+      - name: bierzee-api
         imagePullPolicy: Always
-        image: docker-registry.k8s.array21.dev/twinsight-location-server:latest
+        image: docker-registry.k8s.array21.dev/bierzee-server:latest
         securityContext:
           capabilities:
             drop:
@@ -29,60 +29,61 @@ spec:
           name: api
         env:
         - name: MYSQL_HOST
-          value: mariadb.intern.array21.dev
+          valueFrom:
+            secretKeyRef:
+              name: bierzee-api
+              key: mysql-host
         - name: MYSQL_DATABASE
           valueFrom:
             secretKeyRef:
-              name: location-server-staging
+              name: bierzee-api
               key: mysql-database
         - name: MYSQL_USERNAME
           valueFrom:
             secretKeyRef:
-              name: location-server-staging
+              name: bierzee-api
               key: mysql-username
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: location-server-staging
+              name: bierzee-api
               key: mysql-password
-        - name: LOGIN_SERVER_HOST
-          value: http://login-server-staging.twinsight.svc.cluster.local:8080
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: location-server-staging
-  namespace: twinsight
+  name: bierzee-api
+  namespace: prodlab
 spec:
   selector:
-    app.kubernetes.io/name: location-server-staging
+    app.kubernetes.io/name: bierzee-api
   ports:
   - protocol: TCP
-    name: api
     port: 8080
     targetPort: 8080
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: location-server-staging
-  namespace: twinsight
+  name: bierzee-api
+  namespace: prodlab
   annotations:
-    kubernetes.io/ingress.class: nginx
-    cert-manager.io/cluster-issuer: "letsencrypt-twinsight-media"
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-array21"
+
 spec:
   tls:
   - hosts:
-    - location.staging.twinsight.media
-    secretName: location-staging-twinsight-media
+    - bierzee.k8s.array21.dev
+    secretName: bierzee-k8s-array21-tls
   rules:
-  - host: location.staging.twinsight.media
+  - host: bierzee.k8s.array21.dev
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: location-server-staging
+            name: bierzee-api
             port:
               number: 8080

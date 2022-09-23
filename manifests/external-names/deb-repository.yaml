@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: prometheus
+  name: deb-repository
   namespace: external-names
 spec:
   type: ExternalName
@@ -10,24 +10,25 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: prometheus
+  name: deb-repository
   namespace: external-names
   annotations:
     kubernetes.io/ingress.class: "nginx"
-    cert-manager.io/cluster-issuer: "letsencrypt-array21"
-spec:
+    cert-manager.io/cluster-issuer: 'letsencrypt-array21'
+spec:  
   tls:
   - hosts:
-    - prometheus.k8s.array21.dev
-    secretName: prometheus-k8s-array21-dev
+    - deb.k8s.array21.dev
+    secretName: deb-k8s-array21-dev
+
   rules:
-  - host: prometheus.k8s.array21.dev
+  - host: deb.k8s.array21.dev
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: prometheus
+            name: deb-repository
             port:
-              number: 9090
+              number: 9081

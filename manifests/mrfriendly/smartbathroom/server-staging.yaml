@@ -1,3 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: smartbathroom-server-staging
+  namespace: mrfriendly
+data:
+  config.toml: |
+    mysql_host = "mariadb.intern.array21.dev"
+    mail_hello_domain = "array21.dev"
+    mail_sender_name = "Mr.Friendly"
+    mail_sender_email = "noreply@array21.dev"
+    mail_smtp_relay = "smtp-relay.gmail.com"
+    frontend_host = "smartbathroom-web.staging.mrfriendly.nl"
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -16,9 +30,17 @@ spec:
         app.kubernetes.io/name: smartbathroom-server-staging
     spec:
       automountServiceAccountToken: false
+      volumes:
+      - name: config
+        configMap:
+          name: smartbathroom-server-staging
+          items:
+          - key: config.toml
+            path: config.toml
       containers:
       - name: server
         image: docker-registry.k8s.array21.dev/mrfriendly-smartbathroom-server:latest
+        imagePullPolicy: Always
         securityContext:
           capabilities:
             drop:
@@ -26,9 +48,13 @@ spec:
         ports:
         - name: api
           containerPort: 8080
+        volumeMounts:
+        - name: config
+          mountPath: "/etc/smartbathroom/"
+          readOnly: true
+#        command: ["sh"]
+#        args: ["-c", "while true; do foo; sleep 2; done"]
         env:
-        - name: MYSQL_HOST
-          value: mariadb.intern.array21.dev
         - name: MYSQL_DATABASE
           valueFrom:
             secretKeyRef:

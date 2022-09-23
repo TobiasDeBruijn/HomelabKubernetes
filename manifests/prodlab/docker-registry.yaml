@@ -52,6 +52,9 @@ spec:
           capabilities:
             drop:
             - CAP_NET_RAW
+        env:
+        - name: REGISTRY_STORAGE_DELETE_ENABLED
+          value: 'true'
         ports:
         - containerPort: 5000
           name: main
@@ -102,7 +105,7 @@ metadata:
   namespace: prodlab
   annotations:
     kubernetes.io/ingress.class: "nginx"
-    nginx.ingress.kubernetes.io/proxy-body-size: 1024m
+    nginx.ingress.kubernetes.io/proxy-body-size: 8196m
     nginx.ingress.kubernetes.io/enable-cors: "true"    
     nginx.ingress.kubernetes.io/cors-allow-origin: "*"
     cert-manager.io/cluster-issuer: "letsencrypt-array21"
